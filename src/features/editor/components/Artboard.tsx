@@ -9,8 +9,18 @@ export function Artboard() {
   const elements = useEditorStore((state) => state.elements);
   const selectedTool = useEditorStore((state) => state.selectedTool);
   const addRectangleAt = useEditorStore((state) => state.addRectangleAt);
+  const selectedElementId = useEditorStore((state) => state.selectedElementId);
+  const setSelectedElementId = useEditorStore(
+    (state) => state.setSelectedElementId,
+  );
 
-  const handleStageClick = (event: any) => {
+  const handleStageMouseDown = (event: any) => {
+    const clickedOnEmpty = event.target.name() === "artboard-background";
+
+    if (clickedOnEmpty) {
+      setSelectedElementId(null);
+    }
+
     if (selectedTool !== "rect") return;
 
     const stage = event.target.getStage();
@@ -25,10 +35,11 @@ export function Artboard() {
     <Stage
       width={ARTBOARD_WIDTH}
       height={ARTBOARD_HEIGHT}
-      onMouseDown={handleStageClick}
+      onMouseDown={handleStageMouseDown}
     >
       <Layer>
         <Rect
+          name="artboard-background"
           x={0}
           y={0}
           width={ARTBOARD_WIDTH}
@@ -41,11 +52,14 @@ export function Artboard() {
         {elements.map((element) => (
           <Rect
             key={element.id}
+            onClick={() => setSelectedElementId(element.id)}
             x={element.x}
             y={element.y}
             width={element.width}
             height={element.height}
             fill={element.fill}
+            stroke={selectedElementId === element.id ? "#2563eb" : undefined}
+            strokeWidth={selectedElementId === element.id ? 2 : 0}
           />
         ))}
       </Layer>
