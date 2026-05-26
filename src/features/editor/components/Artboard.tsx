@@ -1,5 +1,5 @@
-import { Layer, Rect, Stage } from "react-konva";
-import { useEffect } from "react";
+import { Layer, Rect, Stage, Transformer } from "react-konva";
+import { useEffect, useRef } from "react";
 
 import { useEditorStore } from "../store/editorStore";
 
@@ -20,6 +20,22 @@ export function Artboard() {
   const deleteSelectedElement = useEditorStore(
     (state) => state.deleteSelectedElement,
   );
+  const updateElementSize = useEditorStore((state) => state.updateElementSize);
+
+  const shapeRef = useRef<any>(null);
+  const transformerRef = useRef<any>(null);
+
+  const selectedElement = elements.find(
+    (element) => element.id === selectedElementId,
+  );
+
+  useEffect(() => {
+    if (selectedElement && shapeRef.current && transformerRef.current) {
+      transformerRef.current.nodes([shapeRef.current]);
+
+      transformerRef.current.getLayer()?.batchDraw();
+    }
+  }, [selectedElement]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -74,6 +90,7 @@ export function Artboard() {
 
         {elements.map((element) => (
           <Rect
+            ref={selectedElementId === element.id ? shapeRef : undefined}
             key={element.id}
             onClick={() => setSelectedElementId(element.id)}
             x={element.x}
@@ -91,8 +108,26 @@ export function Artboard() {
                 event.target.y(),
               )
             }
+            onTransformEnd={(event) => {
+              const node = event.target;
+
+              const scaleX = node.scaleX();
+              const scaleY = node.scaleY();
+
+              const nextWidth = node.width() * scaleX;
+              const nextHeight = node.height() * scaleY;
+
+              node.scaleX(1);
+              node.scaleY(1);
+
+              updateElementSize(element.id, nextWidth, nextHeight);
+            }}
           />
         ))}
+
+        {selectedElement && (
+          <Transformer ref={transformerRef} rotateEnabled={false} />
+        )}
       </Layer>
     </Stage>
   );

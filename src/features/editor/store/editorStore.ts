@@ -12,6 +12,7 @@ interface EditorStore {
   addRectangleAt: (x: number, y: number) => void;
   updateElementPosition: (id: string, x: number, y: number) => void;
   deleteSelectedElement: () => void;
+  updateElementSize: (id: string, width: number, height: number) => void;
 }
 
 export const useEditorStore = create<EditorStore>((set) => ({
@@ -75,5 +76,21 @@ export const useEditorStore = create<EditorStore>((set) => ({
         selectedElementId: null,
       };
     });
+  },
+
+  updateElementSize: (id, width, height) => {
+    set((state) => ({
+      elements: state.elements.map((element) => {
+        if (element.id !== id) {
+          return element;
+        }
+
+        return {
+          ...element,
+          width,
+          height,
+        };
+      }),
+    }));
   },
 }));
