@@ -13,6 +13,9 @@ export function Artboard() {
   const setSelectedElementId = useEditorStore(
     (state) => state.setSelectedElementId,
   );
+  const updateElementPosition = useEditorStore(
+    (state) => state.updateElementPosition,
+  );
 
   const handleStageMouseDown = (event: any) => {
     const clickedOnEmpty = event.target.name() === "artboard-background";
@@ -60,6 +63,14 @@ export function Artboard() {
             fill={element.fill}
             stroke={selectedElementId === element.id ? "#2563eb" : undefined}
             strokeWidth={selectedElementId === element.id ? 2 : 0}
+            draggable
+            onDragEnd={(event) =>
+              updateElementPosition(
+                element.id,
+                event.target.x(),
+                event.target.y(),
+              )
+            }
           />
         ))}
       </Layer>

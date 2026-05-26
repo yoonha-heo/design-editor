@@ -10,6 +10,7 @@ interface EditorStore {
   setSelectedTool: (tool: EditorTool) => void;
   setSelectedElementId: (id: string | null) => void;
   addRectangleAt: (x: number, y: number) => void;
+  updateElementPosition: (id: string, x: number, y: number) => void;
 }
 
 export const useEditorStore = create<EditorStore>((set) => ({
@@ -41,6 +42,22 @@ export const useEditorStore = create<EditorStore>((set) => ({
     set((state) => ({
       elements: [...state.elements, newRect],
       selectedTool: "select",
+    }));
+  },
+
+  updateElementPosition: (id, x, y) => {
+    set((state) => ({
+      elements: state.elements.map((element) => {
+        if (element.id !== id) {
+          return element;
+        }
+
+        return {
+          ...element,
+          x,
+          y,
+        };
+      }),
     }));
   },
 }));
