@@ -11,6 +11,7 @@ interface EditorStore {
   setSelectedElementId: (id: string | null) => void;
   addRectangleAt: (x: number, y: number) => void;
   updateElementPosition: (id: string, x: number, y: number) => void;
+  deleteSelectedElement: () => void;
 }
 
 export const useEditorStore = create<EditorStore>((set) => ({
@@ -59,5 +60,20 @@ export const useEditorStore = create<EditorStore>((set) => ({
         };
       }),
     }));
+  },
+
+  deleteSelectedElement: () => {
+    set((state) => {
+      if (!state.selectedElementId) {
+        return state;
+      }
+
+      return {
+        elements: state.elements.filter(
+          (element) => element.id !== state.selectedElementId,
+        ),
+        selectedElementId: null,
+      };
+    });
   },
 }));

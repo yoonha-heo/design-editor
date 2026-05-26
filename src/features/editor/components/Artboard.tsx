@@ -1,4 +1,5 @@
 import { Layer, Rect, Stage } from "react-konva";
+import { useEffect } from "react";
 
 import { useEditorStore } from "../store/editorStore";
 
@@ -16,6 +17,25 @@ export function Artboard() {
   const updateElementPosition = useEditorStore(
     (state) => state.updateElementPosition,
   );
+  const deleteSelectedElement = useEditorStore(
+    (state) => state.deleteSelectedElement,
+  );
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Delete" && event.key !== "Backspace") {
+        return;
+      }
+
+      deleteSelectedElement();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [deleteSelectedElement]);
 
   const handleStageMouseDown = (event: any) => {
     const clickedOnEmpty = event.target.name() === "artboard-background";
