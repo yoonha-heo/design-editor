@@ -84,7 +84,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
     });
   },
 
-  updateElementSize: (id, width, height) => {
+  updateElementSize: (id, width, height, fontSize?) => {
     set((state) => ({
       elements: state.elements.map((element) => {
         if (element.id !== id) {
@@ -95,6 +95,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
           ...element,
           width,
           height,
+          ...(fontSize && { fontSize }),
         };
       }),
     }));
