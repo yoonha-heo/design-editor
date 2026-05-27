@@ -12,6 +12,8 @@ export interface BaseElement {
 
   x: number;
   y: number;
+
+  rotation: number;
 }
 
 export interface RectElement extends BaseElement {

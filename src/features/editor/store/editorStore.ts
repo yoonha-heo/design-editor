@@ -18,6 +18,7 @@ interface EditorStore {
     height: number,
     fontSize?: number,
   ) => void;
+  updateElementRotation: (id: string, rotation: number) => void;
   addTextAt: (x: number, y: number) => void;
 }
 
@@ -45,6 +46,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
       width: 160,
       height: 120,
       fill: "#3b82f6",
+      rotation: 0,
     };
 
     set((state) => ({
@@ -101,6 +103,21 @@ export const useEditorStore = create<EditorStore>((set) => ({
     }));
   },
 
+  updateElementRotation: (id, rotation) => {
+    set((state) => ({
+      elements: state.elements.map((element) => {
+        if (element.id !== id) {
+          return element;
+        }
+
+        return {
+          ...element,
+          rotation,
+        };
+      }),
+    }));
+  },
+
   addTextAt: (x, y) => {
     const text = "Text";
     const fontSize = 32;
@@ -115,6 +132,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
       text,
       fontSize,
       fill: "#111827",
+      rotation: 0,
     };
 
     set((state) => ({

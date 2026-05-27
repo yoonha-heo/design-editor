@@ -21,6 +21,9 @@ export function Artboard() {
     (state) => state.deleteSelectedElement,
   );
   const updateElementSize = useEditorStore((state) => state.updateElementSize);
+  const updateElementRotation = useEditorStore(
+    (state) => state.updateElementRotation,
+  );
   const addTextAt = useEditorStore((state) => state.addTextAt);
 
   const shapeRef = useRef<any>(null);
@@ -105,6 +108,7 @@ export function Artboard() {
                 width={element.width}
                 height={element.height}
                 fill={element.fill}
+                rotation={element.rotation}
                 stroke={
                   selectedElementId === element.id ? "#2563eb" : undefined
                 }
@@ -122,6 +126,7 @@ export function Artboard() {
 
                   const scaleX = node.scaleX();
                   const scaleY = node.scaleY();
+                  const rotation = node.rotation();
 
                   const nextWidth = node.width() * scaleX;
                   const nextHeight = node.height() * scaleY;
@@ -130,6 +135,7 @@ export function Artboard() {
                   node.scaleY(1);
 
                   updateElementSize(element.id, nextWidth, nextHeight);
+                  updateElementRotation(element.id, rotation);
                 }}
               />
             );
@@ -147,6 +153,7 @@ export function Artboard() {
                 height={element.height}
                 fontSize={element.fontSize}
                 fill={element.fill}
+                rotation={element.rotation}
                 draggable={selectedElementId === element.id}
                 onClick={() => setSelectedElementId(element.id)}
                 onDragEnd={(event) => {
@@ -154,6 +161,7 @@ export function Artboard() {
 
                   const scaleX = node.scaleX();
                   const scaleY = node.scaleY();
+                  const rotation = node.rotation();
 
                   const nextWidth = node.width() * scaleX;
                   const nextHeight = node.height() * scaleY;
@@ -168,15 +176,14 @@ export function Artboard() {
                     nextHeight,
                     nextFontSize,
                   );
+                  updateElementRotation(element.id, rotation);
                 }}
               />
             );
           }
         })}
 
-        {selectedElement && (
-          <Transformer ref={transformerRef} rotateEnabled={false} />
-        )}
+        {selectedElement && <Transformer ref={transformerRef} rotateEnabled />}
       </Layer>
     </Stage>
   );
