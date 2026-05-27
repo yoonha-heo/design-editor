@@ -1,4 +1,4 @@
-import { Layer, Rect, Stage, Transformer } from "react-konva";
+import { Layer, Rect, Stage, Text, Transformer } from "react-konva";
 import { useEffect, useRef } from "react";
 
 import { useEditorStore } from "../store/editorStore";
@@ -21,6 +21,7 @@ export function Artboard() {
     (state) => state.deleteSelectedElement,
   );
   const updateElementSize = useEditorStore((state) => state.updateElementSize);
+  const addTextAt = useEditorStore((state) => state.addTextAt);
 
   const shapeRef = useRef<any>(null);
   const transformerRef = useRef<any>(null);
@@ -60,14 +61,18 @@ export function Artboard() {
       setSelectedElementId(null);
     }
 
-    if (selectedTool !== "rect") return;
-
     const stage = event.target.getStage();
     const pointer = stage?.getPointerPosition();
 
     if (!pointer) return;
 
-    addRectangleAt(pointer.x, pointer.y);
+    if (selectedTool === "rect") {
+      addRectangleAt(pointer.x, pointer.y);
+    }
+
+    if (selectedTool === "text") {
+      addTextAt(pointer.x, pointer.y);
+    }
   };
 
   return (
@@ -88,42 +93,86 @@ export function Artboard() {
           shadowOpacity={0.15}
         />
 
-        {elements.map((element) => (
-          <Rect
-            ref={selectedElementId === element.id ? shapeRef : undefined}
-            key={element.id}
-            onClick={() => setSelectedElementId(element.id)}
-            x={element.x}
-            y={element.y}
-            width={element.width}
-            height={element.height}
-            fill={element.fill}
-            stroke={selectedElementId === element.id ? "#2563eb" : undefined}
-            strokeWidth={selectedElementId === element.id ? 2 : 0}
-            draggable
-            onDragEnd={(event) =>
-              updateElementPosition(
-                element.id,
-                event.target.x(),
-                event.target.y(),
-              )
-            }
-            onTransformEnd={(event) => {
-              const node = event.target;
+        {elements.map((element) => {
+          if (element.type === "rect") {
+            return (
+              <Rect
+                ref={selectedElementId === element.id ? shapeRef : undefined}
+                key={element.id}
+                onClick={() => setSelectedElementId(element.id)}
+                x={element.x}
+                y={element.y}
+                width={element.width}
+                height={element.height}
+                fill={element.fill}
+                stroke={
+                  selectedElementId === element.id ? "#2563eb" : undefined
+                }
+                strokeWidth={selectedElementId === element.id ? 2 : 0}
+                draggable
+                onDragEnd={(event) =>
+                  updateElementPosition(
+                    element.id,
+                    event.target.x(),
+                    event.target.y(),
+                  )
+                }
+                onTransformEnd={(event) => {
+                  const node = event.target;
 
-              const scaleX = node.scaleX();
-              const scaleY = node.scaleY();
+                  const scaleX = node.scaleX();
+                  const scaleY = node.scaleY();
 
-              const nextWidth = node.width() * scaleX;
-              const nextHeight = node.height() * scaleY;
+                  const nextWidth = node.width() * scaleX;
+                  const nextHeight = node.height() * scaleY;
 
-              node.scaleX(1);
-              node.scaleY(1);
+                  node.scaleX(1);
+                  node.scaleY(1);
 
-              updateElementSize(element.id, nextWidth, nextHeight);
-            }}
-          />
-        ))}
+                  updateElementSize(element.id, nextWidth, nextHeight);
+                }}
+              />
+            );
+          }
+
+          if (element.type === "text") {
+            return (
+              <Text
+                key={element.id}
+                ref={selectedElementId === element.id ? shapeRef : undefined}
+                text={element.text}
+                x={element.x}
+                y={element.y}
+                width={element.width}
+                height={element.height}
+                fontSize={element.fontSize}
+                fill={element.fill}
+                draggable={selectedElementId === element.id}
+                onClick={() => setSelectedElementId(element.id)}
+                onDragEnd={(event) => {
+                  const node = event.target;
+
+                  const scaleX = node.scaleX();
+                  const scaleY = node.scaleY();
+
+                  const nextWidth = node.width() * scaleX;
+                  const nextHeight = node.height() * scaleY;
+                  const nextFontSize = element.fontSize * scaleX;
+
+                  node.scaleX(1);
+                  node.scaleY(1);
+
+                  updateElementSize(
+                    element.id,
+                    nextWidth,
+                    nextHeight,
+                    nextFontSize,
+                  );
+                }}
+              />
+            );
+          }
+        })}
 
         {selectedElement && (
           <Transformer ref={transformerRef} rotateEnabled={false} />

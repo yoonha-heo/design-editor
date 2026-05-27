@@ -12,7 +12,13 @@ interface EditorStore {
   addRectangleAt: (x: number, y: number) => void;
   updateElementPosition: (id: string, x: number, y: number) => void;
   deleteSelectedElement: () => void;
-  updateElementSize: (id: string, width: number, height: number) => void;
+  updateElementSize: (
+    id: string,
+    width: number,
+    height: number,
+    fontSize?: number,
+  ) => void;
+  addTextAt: (x: number, y: number) => void;
 }
 
 export const useEditorStore = create<EditorStore>((set) => ({
@@ -91,6 +97,28 @@ export const useEditorStore = create<EditorStore>((set) => ({
           height,
         };
       }),
+    }));
+  },
+
+  addTextAt: (x, y) => {
+    const text = "Text";
+    const fontSize = 32;
+
+    const newText: EditorElement = {
+      id: crypto.randomUUID(),
+      type: "text",
+      width: text.length * fontSize * 0.6,
+      height: fontSize * 1.4,
+      x,
+      y,
+      text,
+      fontSize,
+      fill: "#111827",
+    };
+
+    set((state) => ({
+      elements: [...state.elements, newText],
+      selectedTool: "select",
     }));
   },
 }));

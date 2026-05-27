@@ -23,6 +23,17 @@ export function LeftSidebar() {
       >
         R
       </button>
+
+      <button
+        onClick={() => setSelectedTool("text")}
+        className={`h-10 w-10 rounded-xl border text-sm shadow-sm ${
+          selectedTool === "text"
+            ? "bg-neutral-900 text-white"
+            : "bg-white hover:bg-neutral-100"
+        }`}
+      >
+        T
+      </button>
     </aside>
   );
 }
