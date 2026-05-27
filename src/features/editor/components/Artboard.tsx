@@ -1,7 +1,15 @@
-import { Layer, Rect, Stage, Text, Transformer } from "react-konva";
+import {
+  Layer,
+  Rect,
+  Stage,
+  Text,
+  Transformer,
+  Image as KonvaImage,
+} from "react-konva";
 import { useEffect, useRef } from "react";
 
 import { useEditorStore } from "../store/editorStore";
+import { useImage } from "../hooks/useImage";
 
 const ARTBOARD_WIDTH = 600;
 const ARTBOARD_HEIGHT = 600;
@@ -33,6 +41,45 @@ export function Artboard() {
     (element) => element.id === selectedElementId,
   );
 
+  function CanvasImage({ element, shapeRef }: any) {
+    const image = useImage(element.src);
+
+    if (!image) return null;
+
+    return (
+      <KonvaImage
+        key={element.id}
+        ref={shapeRef}
+        image={image}
+        x={element.x}
+        y={element.y}
+        width={element.width}
+        height={element.height}
+        rotation={element.rotation}
+        draggable={selectedElementId === element.id}
+        onClick={() => setSelectedElementId(element.id)}
+        onDragEnd={(event) => {
+          updateElementPosition(element.id, event.target.x(), event.target.y());
+        }}
+        onTransformEnd={(event) => {
+          const node = event.target;
+
+          const scaleX = node.scaleX();
+          const scaleY = node.scaleY();
+          const rotation = node.rotation();
+
+          const nextWidth = node.width() * scaleX;
+          const nextHeight = node.height() * scaleY;
+
+          node.scaleX(1);
+          node.scaleY(1);
+
+          updateElementSize(element.id, nextWidth, nextHeight);
+          updateElementRotation(element.id, rotation);
+        }}
+      />
+    );
+  }
   useEffect(() => {
     if (selectedElement && shapeRef.current && transformerRef.current) {
       transformerRef.current.nodes([shapeRef.current]);
@@ -178,6 +225,18 @@ export function Artboard() {
                   );
                   updateElementRotation(element.id, rotation);
                 }}
+              />
+            );
+          }
+
+          if (element.type === "image") {
+            return (
+              <CanvasImage
+                key={element.id}
+                element={element}
+                shapeRef={
+                  selectedElementId === element.id ? shapeRef : undefined
+                }
               />
             );
           }

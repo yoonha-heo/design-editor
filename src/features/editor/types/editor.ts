@@ -1,6 +1,6 @@
-export type EditorTool = "select" | "rect" | "text";
+export type EditorTool = "select" | "rect" | "text" | "image";
 
-export type ElementType = "rect" | "text";
+export type ElementType = "rect" | "text" | "image";
 
 export interface BaseElement {
   id: string;
@@ -32,4 +32,10 @@ export interface TextElement extends BaseElement {
   fill: string;
 }
 
-export type EditorElement = RectElement | TextElement;
+export interface ImageElement extends BaseElement {
+  type: "image";
+
+  src: string;
+}
+
+export type EditorElement = RectElement | TextElement | ImageElement;

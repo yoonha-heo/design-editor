@@ -20,6 +20,7 @@ interface EditorStore {
   ) => void;
   updateElementRotation: (id: string, rotation: number) => void;
   addTextAt: (x: number, y: number) => void;
+  addImageAt: (src: string, x: number, y: number) => void;
 }
 
 export const useEditorStore = create<EditorStore>((set) => ({
@@ -51,6 +52,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
 
     set((state) => ({
       elements: [...state.elements, newRect],
+      selectedElementId: newRect.id,
       selectedTool: "select",
     }));
   },
@@ -137,6 +139,26 @@ export const useEditorStore = create<EditorStore>((set) => ({
 
     set((state) => ({
       elements: [...state.elements, newText],
+      selectedElementId: newText.id,
+      selectedTool: "select",
+    }));
+  },
+
+  addImageAt: (src, x, y) => {
+    const newImage: EditorElement = {
+      id: crypto.randomUUID(),
+      type: "image",
+      src,
+      x,
+      y,
+      width: 240,
+      height: 180,
+      rotation: 0,
+    };
+
+    set((state) => ({
+      elements: [...state.elements, newImage],
+      selectedElementId: newImage.id,
       selectedTool: "select",
     }));
   },
