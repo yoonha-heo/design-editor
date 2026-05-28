@@ -1,11 +1,4 @@
-import {
-  Layer,
-  Rect,
-  Stage,
-  Text,
-  Transformer,
-  Image as KonvaImage,
-} from "react-konva";
+import { Layer, Rect, Stage, Text, Transformer, Image } from "react-konva";
 import { useEffect, useRef } from "react";
 
 import { useEditorStore } from "../store/editorStore";
@@ -13,6 +6,52 @@ import { useImage } from "../hooks/useImage";
 
 const ARTBOARD_WIDTH = 600;
 const ARTBOARD_HEIGHT = 600;
+
+// Image manages its own ref + transformer attach timing
+// after the image has finished loading.
+function URLImage({
+  element,
+  isSelected,
+  onSelect,
+  onDragEnd,
+  onTransformEnd,
+}: any) {
+  const image = useImage(element.src);
+  const imageRef = useRef<any>(null);
+  const transformerRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!isSelected) return;
+    if (!imageRef.current) return;
+    if (!transformerRef.current) return;
+
+    transformerRef.current.nodes([imageRef.current]);
+    transformerRef.current.getLayer()?.batchDraw();
+  }, [isSelected, image]);
+
+  if (!image) return null;
+
+  return (
+    <>
+      <Image
+        ref={imageRef}
+        image={image}
+        x={element.x}
+        y={element.y}
+        width={element.width}
+        height={element.height}
+        rotation={element.rotation}
+        draggable
+        onClick={onSelect}
+        onTap={onSelect}
+        onDragEnd={onDragEnd}
+        onTransformEnd={onTransformEnd}
+      />
+
+      {isSelected && <Transformer ref={transformerRef} />}
+    </>
+  );
+}
 
 export function Artboard() {
   const elements = useEditorStore((state) => state.elements);
@@ -41,45 +80,6 @@ export function Artboard() {
     (element) => element.id === selectedElementId,
   );
 
-  function CanvasImage({ element, shapeRef }: any) {
-    const image = useImage(element.src);
-
-    if (!image) return null;
-
-    return (
-      <KonvaImage
-        key={element.id}
-        ref={shapeRef}
-        image={image}
-        x={element.x}
-        y={element.y}
-        width={element.width}
-        height={element.height}
-        rotation={element.rotation}
-        draggable={selectedElementId === element.id}
-        onClick={() => setSelectedElementId(element.id)}
-        onDragEnd={(event) => {
-          updateElementPosition(element.id, event.target.x(), event.target.y());
-        }}
-        onTransformEnd={(event) => {
-          const node = event.target;
-
-          const scaleX = node.scaleX();
-          const scaleY = node.scaleY();
-          const rotation = node.rotation();
-
-          const nextWidth = node.width() * scaleX;
-          const nextHeight = node.height() * scaleY;
-
-          node.scaleX(1);
-          node.scaleY(1);
-
-          updateElementSize(element.id, nextWidth, nextHeight);
-          updateElementRotation(element.id, rotation);
-        }}
-      />
-    );
-  }
   useEffect(() => {
     if (selectedElement && shapeRef.current && transformerRef.current) {
       transformerRef.current.nodes([shapeRef.current]);
@@ -231,12 +231,34 @@ export function Artboard() {
 
           if (element.type === "image") {
             return (
-              <CanvasImage
+              <URLImage
                 key={element.id}
                 element={element}
-                shapeRef={
-                  selectedElementId === element.id ? shapeRef : undefined
-                }
+                isSelected={selectedElementId === element.id}
+                onSelect={() => setSelectedElementId(element.id)}
+                onDragEnd={(event) => {
+                  updateElementPosition(
+                    element.id,
+                    event.target.x(),
+                    event.target.y(),
+                  );
+                }}
+                onTransformEnd={(event) => {
+                  const node = event.target;
+
+                  const scaleX = node.scaleX();
+                  const scaleY = node.scaleY();
+                  const rotation = node.rotation();
+
+                  const nextWidth = node.width() * scaleX;
+                  const nextHeight = node.height() * scaleY;
+
+                  node.scaleX(1);
+                  node.scaleY(1);
+
+                  updateElementSize(element.id, nextWidth, nextHeight);
+                  updateElementRotation(element.id, rotation);
+                }}
               />
             );
           }
