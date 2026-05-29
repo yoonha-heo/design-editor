@@ -9,9 +9,12 @@ interface EditorStore {
 
   setSelectedTool: (tool: EditorTool) => void;
   setSelectedElementId: (id: string | null) => void;
+
   addRectangleAt: (x: number, y: number) => void;
+  addTextAt: (x: number, y: number) => void;
+  addImageAt: (src: string, x: number, y: number) => void;
+
   updateElementPosition: (id: string, x: number, y: number) => void;
-  deleteSelectedElement: () => void;
   updateElementSize: (
     id: string,
     width: number,
@@ -19,8 +22,13 @@ interface EditorStore {
     fontSize?: number,
   ) => void;
   updateElementRotation: (id: string, rotation: number) => void;
-  addTextAt: (x: number, y: number) => void;
-  addImageAt: (src: string, x: number, y: number) => void;
+
+  deleteSelectedElement: () => void;
+
+  bringForward: (id: string) => void;
+  sendBackward: (id: string) => void;
+  bringToFront: (id: string) => void;
+  sendToBack: (id: string) => void;
 }
 
 export const useEditorStore = create<EditorStore>((set) => ({
@@ -161,5 +169,81 @@ export const useEditorStore = create<EditorStore>((set) => ({
       selectedElementId: newImage.id,
       selectedTool: "select",
     }));
+  },
+
+  bringForward: (id: string) => {
+    set((state) => {
+      const index = state.elements.findIndex((element) => element.id === id);
+
+      if (index === -1 || index === state.elements.length - 1) {
+        return {};
+      }
+
+      const next = [...state.elements];
+
+      [next[index], next[index + 1]] = [next[index + 1], next[index]];
+
+      return {
+        elements: next,
+      };
+    });
+  },
+
+  bringToFront: (id: string) => {
+    set((state) => {
+      const index = state.elements.findIndex((element) => element.id === id);
+
+      if (index === -1 || index === state.elements.length - 1) {
+        return {};
+      }
+
+      const next = [...state.elements];
+
+      const cur = next[index];
+      next.splice(index, 1);
+      next.push(cur);
+
+      return {
+        elements: next,
+      };
+    });
+  },
+
+  sendBackward: (id: string) => {
+    set((state) => {
+      const index = state.elements.findIndex((element) => element.id === id);
+
+      if (index <= 0) {
+        return {};
+      }
+
+      const next = [...state.elements];
+
+      [next[index], next[index - 1]] = [next[index - 1], next[index]];
+
+      return {
+        elements: next,
+      };
+    });
+  },
+
+  sendToBack: (id: string) => {
+    set((state) => {
+      const index = state.elements.findIndex((element) => element.id === id);
+
+      if (index <= 0) {
+        return {};
+      }
+
+      const next = [...state.elements];
+
+      const cur = next[index];
+      next.splice(index, 1);
+      next.unshift(cur);
+
+      return {
+        elements: next,
+      };
+    });
   },
 }));

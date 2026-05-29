@@ -1,7 +1,90 @@
-export function TopToolbar() {
+import { useState } from "react";
+import { BringToFront, SendToBack, MoveUp, MoveDown } from "lucide-react";
+
+import { useEditorStore } from "../store/editorStore";
+
+function ArrangementMenuItem({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
   return (
-    <header className="flex h-14 shrink-0 items-center border-b bg-white px-4">
-      Toolbar
+    <div
+      onClick={onClick}
+      className="flex cursor-pointer items-center gap-3 text-md text-gray-700 hover:text-black"
+    >
+      <div>{icon}</div>
+      <span>{label}</span>
+    </div>
+  );
+}
+
+export function TopToolbar() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const {
+    selectedElementId,
+    bringForward,
+    sendBackward,
+    bringToFront,
+    sendToBack,
+  } = useEditorStore();
+
+  const handleArrangementAction = (action: (id: string) => void) => {
+    if (!selectedElementId) return;
+
+    action(selectedElementId);
+  };
+
+  return (
+    <header className="flex h-14 items-center justify-end border-b bg-white px-4">
+      <div className="relative">
+        <button
+          onClick={() => setIsDropdownOpen((prev) => !prev)}
+          className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"
+        >
+          <div>
+            <BringToFront size={20} />
+          </div>
+          <span className="absolute top-10 right-0 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
+            <span className="absolute -top-1 right-3 w-2 h-2 rotate-45 bg-black" />
+            Arrangement
+          </span>
+        </button>
+
+        {isDropdownOpen && (
+          <div className="absolute right-0 top-12 z-50 w-[300px] rounded-lg bg-white p-4 shadow-lg">
+            <div className="grid grid-cols-2 gap-x-10 gap-y-8">
+              <ArrangementMenuItem
+                icon={<MoveUp size={18} />}
+                label="Forward"
+                onClick={() => handleArrangementAction(bringForward)}
+              />
+
+              <ArrangementMenuItem
+                icon={<MoveDown size={18} />}
+                label="Backward"
+                onClick={() => handleArrangementAction(sendBackward)}
+              />
+
+              <ArrangementMenuItem
+                icon={<BringToFront size={18} />}
+                label="To front"
+                onClick={() => handleArrangementAction(bringToFront)}
+              />
+
+              <ArrangementMenuItem
+                icon={<SendToBack size={18} />}
+                label="To back"
+                onClick={() => handleArrangementAction(sendToBack)}
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </header>
   );
 }
