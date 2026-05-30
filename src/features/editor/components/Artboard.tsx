@@ -204,6 +204,13 @@ export function Artboard() {
                 draggable={selectedElementId === element.id}
                 onClick={() => setSelectedElementId(element.id)}
                 onDragEnd={(event) => {
+                  updateElementPosition(
+                    element.id,
+                    event.target.x(),
+                    event.target.y(),
+                  );
+                }}
+                onTransformEnd={(event) => {
                   const node = event.target;
 
                   const scaleX = node.scaleX();
