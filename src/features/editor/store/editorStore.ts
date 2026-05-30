@@ -2,13 +2,26 @@ import { create } from "zustand";
 
 import type { EditorElement, EditorTool } from "../types/editor";
 
+function pushHistory(state: EditorStore) {
+  return {
+    past: [...state.past, state.elements],
+    future: [],
+  };
+}
+
 interface EditorStore {
   elements: EditorElement[];
+  past: EditorElement[][];
+  future: EditorElement[][];
+
   selectedTool: EditorTool;
   selectedElementId: string | null;
 
   setSelectedTool: (tool: EditorTool) => void;
   setSelectedElementId: (id: string | null) => void;
+
+  undo: () => void;
+  redo: () => void;
 
   addRectangleAt: (x: number, y: number) => void;
   addTextAt: (x: number, y: number) => void;
@@ -33,6 +46,9 @@ interface EditorStore {
 
 export const useEditorStore = create<EditorStore>((set) => ({
   elements: [],
+  past: [],
+  future: [],
+
   selectedTool: "select",
   selectedElementId: null,
 
@@ -43,6 +59,36 @@ export const useEditorStore = create<EditorStore>((set) => ({
   setSelectedElementId: (id) => {
     set({
       selectedElementId: id,
+    });
+  },
+
+  undo: () => {
+    set((state) => {
+      const previous = state.past[state.past.length - 1];
+
+      if (!previous) return {};
+
+      return {
+        elements: previous,
+        past: state.past.slice(0, -1),
+        future: [...state.future, state.elements],
+        selectedElementId: null,
+      };
+    });
+  },
+
+  redo: () => {
+    set((state) => {
+      const next = state.future[state.future.length - 1];
+
+      if (!next) return {};
+
+      return {
+        elements: next,
+        past: [...state.past, state.elements],
+        future: state.future.slice(0, -1),
+        selectedElementId: null,
+      };
     });
   },
 
@@ -59,6 +105,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
     };
 
     set((state) => ({
+      ...pushHistory(state),
       elements: [...state.elements, newRect],
       selectedElementId: newRect.id,
       selectedTool: "select",
@@ -67,6 +114,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
 
   updateElementPosition: (id, x, y) => {
     set((state) => ({
+      ...pushHistory(state),
       elements: state.elements.map((element) => {
         if (element.id !== id) {
           return element;
@@ -88,6 +136,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
       }
 
       return {
+        ...pushHistory(state),
         elements: state.elements.filter(
           (element) => element.id !== state.selectedElementId,
         ),
@@ -98,6 +147,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
 
   updateElementSize: (id, width, height, fontSize?) => {
     set((state) => ({
+      ...pushHistory(state),
       elements: state.elements.map((element) => {
         if (element.id !== id) {
           return element;
@@ -115,6 +165,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
 
   updateElementRotation: (id, rotation) => {
     set((state) => ({
+      ...pushHistory(state),
       elements: state.elements.map((element) => {
         if (element.id !== id) {
           return element;
@@ -146,6 +197,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
     };
 
     set((state) => ({
+      ...pushHistory(state),
       elements: [...state.elements, newText],
       selectedElementId: newText.id,
       selectedTool: "select",
@@ -165,6 +217,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
     };
 
     set((state) => ({
+      ...pushHistory(state),
       elements: [...state.elements, newImage],
       selectedElementId: newImage.id,
       selectedTool: "select",
@@ -184,6 +237,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
       [next[index], next[index + 1]] = [next[index + 1], next[index]];
 
       return {
+        ...pushHistory(state),
         elements: next,
       };
     });
@@ -204,6 +258,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
       next.push(cur);
 
       return {
+        ...pushHistory(state),
         elements: next,
       };
     });
@@ -222,6 +277,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
       [next[index], next[index - 1]] = [next[index - 1], next[index]];
 
       return {
+        ...pushHistory(state),
         elements: next,
       };
     });
@@ -242,6 +298,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
       next.unshift(cur);
 
       return {
+        ...pushHistory(state),
         elements: next,
       };
     });

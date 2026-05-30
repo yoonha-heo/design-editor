@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { BringToFront, SendToBack, MoveUp, MoveDown } from "lucide-react";
+import {
+  BringToFront,
+  SendToBack,
+  MoveUp,
+  MoveDown,
+  Undo2,
+  Redo2,
+} from "lucide-react";
 
 import { useEditorStore } from "../store/editorStore";
 
@@ -31,6 +38,8 @@ export function TopToolbar() {
     sendBackward,
     bringToFront,
     sendToBack,
+    undo,
+    redo,
   } = useEditorStore();
 
   const handleArrangementAction = (action: (id: string) => void) => {
@@ -41,7 +50,33 @@ export function TopToolbar() {
 
   return (
     <header className="flex h-14 items-center justify-end border-b bg-white px-4">
-      <div className="relative">
+      <div className="relative flex gap-2">
+        <button
+          onClick={undo}
+          className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"
+        >
+          <div>
+            <Undo2 size={20} />
+          </div>
+          <span className="absolute top-10 right-0 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
+            <span className="absolute -top-1 right-3 w-2 h-2 rotate-45 bg-black" />
+            undo
+          </span>
+        </button>
+
+        <button
+          onClick={redo}
+          className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"
+        >
+          <div>
+            <Redo2 size={20} />
+          </div>
+          <span className="absolute top-10 right-0 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
+            <span className="absolute -top-1 right-3 w-2 h-2 rotate-45 bg-black" />
+            redo
+          </span>
+        </button>
+
         <button
           onClick={() => setIsDropdownOpen((prev) => !prev)}
           className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"
