@@ -1,4 +1,14 @@
-import { Layer, Rect, Stage, Text, Transformer, Image } from "react-konva";
+import {
+  Layer,
+  Rect,
+  Ellipse,
+  RegularPolygon,
+  Star,
+  Stage,
+  Text,
+  Transformer,
+  Image,
+} from "react-konva";
 import { useEffect, useRef } from "react";
 
 import { useEditorStore } from "../store/editorStore";
@@ -56,7 +66,8 @@ function URLImage({
 export function Artboard() {
   const elements = useEditorStore((state) => state.elements);
   const selectedTool = useEditorStore((state) => state.selectedTool);
-  const addRectangleAt = useEditorStore((state) => state.addRectangleAt);
+  const selectedShape = useEditorStore((state) => state.selectedShape);
+  const addShapeAt = useEditorStore((state) => state.addShapeAt);
   const selectedElementId = useEditorStore((state) => state.selectedElementId);
   const setSelectedElementId = useEditorStore(
     (state) => state.setSelectedElementId,
@@ -116,8 +127,8 @@ export function Artboard() {
 
     if (!pointer) return;
 
-    if (selectedTool === "rect") {
-      addRectangleAt(pointer.x, pointer.y);
+    if (selectedTool === "shape") {
+      addShapeAt(selectedShape, pointer.x, pointer.y);
     }
 
     if (selectedTool === "text") {
@@ -144,48 +155,189 @@ export function Artboard() {
         />
 
         {elements.map((element) => {
-          if (element.type === "rect") {
-            return (
-              <Rect
-                ref={selectedElementId === element.id ? shapeRef : undefined}
-                key={element.id}
-                onClick={() => setSelectedElementId(element.id)}
-                x={element.x}
-                y={element.y}
-                width={element.width}
-                height={element.height}
-                fill={element.fill}
-                rotation={element.rotation}
-                stroke={
-                  selectedElementId === element.id ? "#2563eb" : undefined
-                }
-                strokeWidth={selectedElementId === element.id ? 2 : 0}
-                draggable
-                onDragEnd={(event) =>
-                  updateElementPosition(
-                    element.id,
-                    event.target.x(),
-                    event.target.y(),
-                  )
-                }
-                onTransformEnd={(event) => {
-                  const node = event.target;
+          if (element.type === "shape") {
+            if (element.shape === "rectangle") {
+              return (
+                <Rect
+                  ref={selectedElementId === element.id ? shapeRef : undefined}
+                  key={element.id}
+                  onClick={() => setSelectedElementId(element.id)}
+                  x={element.x}
+                  y={element.y}
+                  width={element.width}
+                  height={element.height}
+                  fill={element.fill}
+                  rotation={element.rotation}
+                  stroke={
+                    selectedElementId === element.id ? "#2563eb" : undefined
+                  }
+                  strokeWidth={selectedElementId === element.id ? 2 : 0}
+                  draggable
+                  onDragEnd={(event) =>
+                    updateElementPosition(
+                      element.id,
+                      event.target.x(),
+                      event.target.y(),
+                    )
+                  }
+                  onTransformEnd={(event) => {
+                    const node = event.target;
 
-                  const scaleX = node.scaleX();
-                  const scaleY = node.scaleY();
-                  const rotation = node.rotation();
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+                    const rotation = node.rotation();
 
-                  const nextWidth = node.width() * scaleX;
-                  const nextHeight = node.height() * scaleY;
+                    const nextWidth = node.width() * scaleX;
+                    const nextHeight = node.height() * scaleY;
 
-                  node.scaleX(1);
-                  node.scaleY(1);
+                    node.scaleX(1);
+                    node.scaleY(1);
 
-                  updateElementSize(element.id, nextWidth, nextHeight);
-                  updateElementRotation(element.id, rotation);
-                }}
-              />
-            );
+                    updateElementSize(element.id, nextWidth, nextHeight);
+                    updateElementRotation(element.id, rotation);
+                  }}
+                />
+              );
+            }
+
+            if (element.shape === "circle") {
+              return (
+                <Ellipse
+                  ref={selectedElementId === element.id ? shapeRef : undefined}
+                  key={element.id}
+                  onClick={() => setSelectedElementId(element.id)}
+                  x={element.x}
+                  y={element.y}
+                  width={element.width}
+                  height={element.height}
+                  radiusX={element.width / 2}
+                  radiusY={element.height / 2}
+                  fill={element.fill}
+                  rotation={element.rotation}
+                  stroke={
+                    selectedElementId === element.id ? "#2563eb" : undefined
+                  }
+                  strokeWidth={selectedElementId === element.id ? 2 : 0}
+                  draggable
+                  onDragEnd={(event) =>
+                    updateElementPosition(
+                      element.id,
+                      event.target.x(),
+                      event.target.y(),
+                    )
+                  }
+                  onTransformEnd={(event) => {
+                    const node = event.target;
+
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+                    const rotation = node.rotation();
+
+                    const nextWidth = node.width() * scaleX;
+                    const nextHeight = node.height() * scaleY;
+
+                    node.scaleX(1);
+                    node.scaleY(1);
+
+                    updateElementSize(element.id, nextWidth, nextHeight);
+                    updateElementRotation(element.id, rotation);
+                  }}
+                />
+              );
+            }
+
+            if (element.shape === "triangle") {
+              return (
+                <RegularPolygon
+                  ref={selectedElementId === element.id ? shapeRef : undefined}
+                  key={element.id}
+                  onClick={() => setSelectedElementId(element.id)}
+                  x={element.x}
+                  y={element.y}
+                  width={element.width}
+                  height={element.height}
+                  sides={3}
+                  radius={50}
+                  fill={element.fill}
+                  rotation={element.rotation}
+                  stroke={
+                    selectedElementId === element.id ? "#2563eb" : undefined
+                  }
+                  strokeWidth={selectedElementId === element.id ? 2 : 0}
+                  draggable
+                  onDragEnd={(event) =>
+                    updateElementPosition(
+                      element.id,
+                      event.target.x(),
+                      event.target.y(),
+                    )
+                  }
+                  onTransformEnd={(event) => {
+                    const node = event.target;
+
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+                    const rotation = node.rotation();
+
+                    const nextWidth = node.width() * scaleX;
+                    const nextHeight = node.height() * scaleY;
+
+                    node.scaleX(1);
+                    node.scaleY(1);
+
+                    updateElementSize(element.id, nextWidth, nextHeight);
+                    updateElementRotation(element.id, rotation);
+                  }}
+                />
+              );
+            }
+
+            if (element.shape === "star") {
+              return (
+                <Star
+                  ref={selectedElementId === element.id ? shapeRef : undefined}
+                  key={element.id}
+                  onClick={() => setSelectedElementId(element.id)}
+                  x={element.x}
+                  y={element.y}
+                  numPoints={5}
+                  outerRadius={Math.min(element.width, element.height) * 0.5}
+                  innerRadius={Math.min(element.width, element.height) * 0.25}
+                  width={element.width}
+                  height={element.height}
+                  fill={element.fill}
+                  rotation={element.rotation}
+                  stroke={
+                    selectedElementId === element.id ? "#2563eb" : undefined
+                  }
+                  strokeWidth={selectedElementId === element.id ? 2 : 0}
+                  draggable
+                  onDragEnd={(event) =>
+                    updateElementPosition(
+                      element.id,
+                      event.target.x(),
+                      event.target.y(),
+                    )
+                  }
+                  onTransformEnd={(event) => {
+                    const node = event.target;
+
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+                    const rotation = node.rotation();
+
+                    const nextWidth = node.width() * scaleX;
+                    const nextHeight = node.height() * scaleY;
+
+                    node.scaleX(1);
+                    node.scaleY(1);
+
+                    updateElementSize(element.id, nextWidth, nextHeight);
+                    updateElementRotation(element.id, rotation);
+                  }}
+                />
+              );
+            }
           }
 
           if (element.type === "text") {
@@ -271,7 +423,9 @@ export function Artboard() {
           }
         })}
 
-        {selectedElement && <Transformer ref={transformerRef} rotateEnabled />}
+        {selectedElement && (
+          <Transformer ref={transformerRef} rotateEnabled keepRatio={true} />
+        )}
       </Layer>
     </Stage>
   );

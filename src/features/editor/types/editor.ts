@@ -1,6 +1,8 @@
-export type EditorTool = "select" | "rect" | "text" | "image";
+export type EditorTool = "select" | "shape" | "text" | "image";
 
-export type ElementType = "rect" | "text" | "image";
+export type ElementType = "shape" | "text" | "image";
+
+export type ShapeKind = "rectangle" | "circle" | "triangle" | "star";
 
 export interface BaseElement {
   id: string;
@@ -16,8 +18,10 @@ export interface BaseElement {
   rotation: number;
 }
 
-export interface RectElement extends BaseElement {
-  type: "rect";
+export interface ShapeElement extends BaseElement {
+  type: "shape";
+
+  shape: ShapeKind;
 
   fill: string;
 }
@@ -38,4 +42,4 @@ export interface ImageElement extends BaseElement {
   src: string;
 }
 
-export type EditorElement = RectElement | TextElement | ImageElement;
+export type EditorElement = ShapeElement | TextElement | ImageElement;

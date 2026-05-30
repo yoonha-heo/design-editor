@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import type { EditorElement, EditorTool } from "../types/editor";
+import type { EditorElement, EditorTool, ShapeKind } from "../types/editor";
 
 function pushHistory(state: EditorStore) {
   return {
@@ -15,15 +15,17 @@ interface EditorStore {
   future: EditorElement[][];
 
   selectedTool: EditorTool;
+  selectedShape: ShapeKind | null;
   selectedElementId: string | null;
 
   setSelectedTool: (tool: EditorTool) => void;
+  setSelectedShape: (shape: ShapeKind) => void;
   setSelectedElementId: (id: string | null) => void;
 
   undo: () => void;
   redo: () => void;
 
-  addRectangleAt: (x: number, y: number) => void;
+  addShapeAt: (shape: ShapeKind, x: number, y: number) => void;
   addTextAt: (x: number, y: number) => void;
   addImageAt: (src: string, x: number, y: number) => void;
 
@@ -50,10 +52,15 @@ export const useEditorStore = create<EditorStore>((set) => ({
   future: [],
 
   selectedTool: "select",
+  selectedShape: null,
   selectedElementId: null,
 
   setSelectedTool: (tool) => {
     set({ selectedTool: tool });
+  },
+
+  setSelectedShape: (shape) => {
+    set({ selectedShape: shape });
   },
 
   setSelectedElementId: (id) => {
@@ -92,13 +99,14 @@ export const useEditorStore = create<EditorStore>((set) => ({
     });
   },
 
-  addRectangleAt: (x, y) => {
-    const newRect: EditorElement = {
+  addShapeAt: (shape, x, y) => {
+    const newShape: EditorElement = {
       id: crypto.randomUUID(),
-      type: "rect",
+      type: "shape",
+      shape,
       x,
       y,
-      width: 160,
+      width: 120,
       height: 120,
       fill: "#3b82f6",
       rotation: 0,
@@ -106,8 +114,8 @@ export const useEditorStore = create<EditorStore>((set) => ({
 
     set((state) => ({
       ...pushHistory(state),
-      elements: [...state.elements, newRect],
-      selectedElementId: newRect.id,
+      elements: [...state.elements, newShape],
+      selectedElementId: newShape.id,
       selectedTool: "select",
     }));
   },
