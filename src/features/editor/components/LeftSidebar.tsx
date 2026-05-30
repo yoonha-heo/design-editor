@@ -1,12 +1,18 @@
 import { useEditorStore } from "../store/editorStore";
 
-export function LeftSidebar() {
+export function LeftSidebar({
+  isShapePanelOpen,
+  onToggleShapePanel,
+}: {
+  isShapePanelOpen: boolean;
+  onToggleShapePanel: () => void;
+}) {
   const selectedTool = useEditorStore((state) => state.selectedTool);
   const setSelectedTool = useEditorStore((state) => state.setSelectedTool);
   const addImageAt = useEditorStore((state) => state.addImageAt);
 
   return (
-    <aside className="flex w-20 shrink-0 flex-col items-center gap-3 border-r bg-white p-3">
+    <aside className="flex w-20 shrink-0 flex-col items-center z-50   gap-3 border-r bg-white p-3">
       <button
         onClick={() => setSelectedTool("select")}
         className={`h-10 w-10 rounded-xl border text-sm shadow-sm ${selectedTool === "select" ? "bg-neutral-900 text-white" : "bg-white hover:bg-neutral-100"}`}
@@ -15,14 +21,14 @@ export function LeftSidebar() {
       </button>
 
       <button
-        onClick={() => setSelectedTool("rect")}
+        onClick={onToggleShapePanel}
         className={`h-10 w-10 rounded-xl border text-sm shadow-sm ${
-          selectedTool === "rect"
+          isShapePanelOpen
             ? "bg-neutral-900 text-white"
             : "bg-white hover:bg-neutral-100"
         }`}
       >
-        R
+        S
       </button>
 
       <button

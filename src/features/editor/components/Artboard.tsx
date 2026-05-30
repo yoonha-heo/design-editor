@@ -4,8 +4,8 @@ import { useEffect, useRef } from "react";
 import { useEditorStore } from "../store/editorStore";
 import { useImage } from "../hooks/useImage";
 
-const ARTBOARD_WIDTH = 600;
-const ARTBOARD_HEIGHT = 600;
+const ARTBOARD_WIDTH = 500;
+const ARTBOARD_HEIGHT = 500;
 
 // Image manages its own ref + transformer attach timing
 // after the image has finished loading.
