@@ -17,49 +17,45 @@ import { useImage } from "../hooks/useImage";
 const ARTBOARD_WIDTH = 500;
 const ARTBOARD_HEIGHT = 500;
 
-// Image manages its own ref + transformer attach timing
-// after the image has finished loading.
+
+// Image node is created asynchronously
+// Notify the parent when the image is ready
+// so the Transformer can be attached correctly
 function URLImage({
   element,
   isSelected,
   onSelect,
   onDragEnd,
   onTransformEnd,
+  onImageReady,
 }: any) {
   const image = useImage(element.src);
   const imageRef = useRef<any>(null);
-  const transformerRef = useRef<any>(null);
 
   useEffect(() => {
     if (!isSelected) return;
     if (!imageRef.current) return;
-    if (!transformerRef.current) return;
 
-    transformerRef.current.nodes([imageRef.current]);
-    transformerRef.current.getLayer()?.batchDraw();
+    onImageReady(element.id, imageRef.current);
   }, [isSelected, image]);
 
   if (!image) return null;
 
   return (
-    <>
-      <Image
-        ref={imageRef}
-        image={image}
-        x={element.x}
-        y={element.y}
-        width={element.width}
-        height={element.height}
-        rotation={element.rotation}
-        draggable
-        onClick={onSelect}
-        onTap={onSelect}
-        onDragEnd={onDragEnd}
-        onTransformEnd={onTransformEnd}
-      />
-
-      {isSelected && <Transformer ref={transformerRef} />}
-    </>
+    <Image
+      ref={imageRef}
+      image={image}
+      x={element.x}
+      y={element.y}
+      width={element.width}
+      height={element.height}
+      rotation={element.rotation}
+      draggable
+      onClick={onSelect}
+      onTap={onSelect}
+      onDragEnd={onDragEnd}
+      onTransformEnd={onTransformEnd}
+    />
   );
 }
 
@@ -81,18 +77,39 @@ export function Artboard() {
   );
 
   const shapeRef = useRef<any>(null);
+  const imageNodeRefs = useRef<Record<string, any>>({});
   const transformerRef = useRef<any>(null);
 
   const selectedElement = elements.find(
     (element) => element.id === selectedElementId,
   );
 
-  useEffect(() => {
-    if (selectedElement && shapeRef.current && transformerRef.current) {
-      transformerRef.current.nodes([shapeRef.current]);
+  const handleImageReady = (id: string, node: any) => {
+    imageNodeRefs.current[id] = node;
 
+    if (selectedElementId === id && transformerRef.current) {
+      transformerRef.current.nodes([node]);
       transformerRef.current.getLayer()?.batchDraw();
     }
+  };
+
+  useEffect(() => {
+    if (!selectedElement || !transformerRef.current) return;
+
+    if (selectedElement.type === "image") {
+      const imageNode = imageNodeRefs.current[selectedElement.id];
+
+      if (!imageNode) return;
+
+      transformerRef.current.nodes([imageNode]);
+      transformerRef.current.getLayer()?.batchDraw();
+      return;
+    }
+
+    if (!shapeRef.current) return;
+
+    transformerRef.current.nodes([shapeRef.current]);
+    transformerRef.current.getLayer()?.batchDraw();
   }, [selectedElement]);
 
   useEffect(() => {
@@ -401,6 +418,7 @@ export function Artboard() {
                   updateElementSize(element.id, nextWidth, nextHeight);
                   updateElementRotation(element.id, rotation);
                 }}
+                onImageReady={handleImageReady}
               />
             );
           }
