@@ -1,4 +1,32 @@
+import { Image, MousePointer2, Shapes, Type } from "lucide-react";
+
 import { useEditorStore } from "../store/editorStore";
+
+function SidebarButton({
+  icon,
+  label,
+  isActive,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  isActive?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex h-16 w-20 flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium transition-colors ${
+        isActive
+          ? "bg-emerald-50 text-emerald-600"
+          : "text-gray-700 hover:bg-gray-100"
+      }`}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+}
 
 export function LeftSidebar({
   isShapePanelOpen,
@@ -12,38 +40,38 @@ export function LeftSidebar({
   const addImageAt = useEditorStore((state) => state.addImageAt);
 
   return (
-    <aside className="flex w-20 shrink-0 flex-col items-center z-50   gap-3 border-r bg-white p-3">
-      <button
+    <aside className="z-50 flex w-24 shrink-0 flex-col items-center gap-2 border-r bg-white px-2 py-4">
+      <SidebarButton
+        icon={<MousePointer2 size={20} />}
+        label="Select"
+        isActive={selectedTool === "select"}
         onClick={() => setSelectedTool("select")}
-        className={`h-10 w-10 rounded-xl border text-sm shadow-sm ${selectedTool === "select" ? "bg-neutral-900 text-white" : "bg-white hover:bg-neutral-100"}`}
-      >
-        V
-      </button>
+      />
 
-      <button
+      <SidebarButton
+        icon={<Shapes size={20} />}
+        label="Shapes"
+        isActive={isShapePanelOpen}
         onClick={onToggleShapePanel}
-        className={`h-10 w-10 rounded-xl border text-sm shadow-sm ${
-          isShapePanelOpen
-            ? "bg-neutral-900 text-white"
-            : "bg-white hover:bg-neutral-100"
-        }`}
-      >
-        S
-      </button>
+      />
 
-      <button
+      <SidebarButton
+        icon={<Type size={22} />}
+        label="Text"
+        isActive={selectedTool === "text"}
         onClick={() => setSelectedTool("text")}
-        className={`h-10 w-10 rounded-xl border text-sm shadow-sm ${
-          selectedTool === "text"
-            ? "bg-neutral-900 text-white"
-            : "bg-white hover:bg-neutral-100"
+      />
+
+      <label
+        className={`flex h-16 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium transition-colors ${
+          selectedTool === "image"
+            ? "bg-emerald-50 text-emerald-600"
+            : "text-gray-700 hover:bg-gray-100"
         }`}
       >
-        T
-      </button>
+        <Image size={20} />
+        <span>Image</span>
 
-      <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border bg-white text-sm shadow-sm hover:bg-neutral-100">
-        I
         <input
           type="file"
           accept="image/*"
