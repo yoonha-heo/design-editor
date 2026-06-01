@@ -6,7 +6,9 @@ import {
   MoveDown,
   Undo2,
   Redo2,
+  Palette,
 } from "lucide-react";
+import { HexColorPicker } from "react-colorful";
 
 import { useEditorStore } from "../store/editorStore";
 
@@ -32,7 +34,10 @@ function ArrangementMenuItem({
 
 export function TopToolbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+
   const {
+    elements,
     selectedElementId,
     bringForward,
     sendBackward,
@@ -40,7 +45,14 @@ export function TopToolbar() {
     sendToBack,
     undo,
     redo,
+    updateFill,
   } = useEditorStore();
+
+  const selectedElement = elements.find(
+    (element) => element.id === selectedElementId,
+  );
+
+  const canChangeFill = selectedElement && selectedElement.type !== "image";
 
   const handleArrangementAction = (action: (id: string) => void) => {
     if (!selectedElementId) return;
@@ -50,7 +62,29 @@ export function TopToolbar() {
 
   return (
     <header className="flex h-14 items-center justify-end border-b bg-white px-4">
-      <div className="relative flex gap-2">
+      <div className="relative flex gap-1">
+        <button
+          onClick={() => setIsColorPickerOpen((prev) => !prev)}
+          className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"
+        >
+          <div>
+            <Palette size={20} />
+          </div>
+          <span className="absolute top-10 right-0 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
+            <span className="absolute -top-1 right-3 w-2 h-2 rotate-45 bg-black" />
+            color
+          </span>
+        </button>
+
+        {isColorPickerOpen && canChangeFill && (
+          <div className="absolute top-12 right-0 z-50 rounded-lg bg-white">
+            <HexColorPicker
+              color={selectedElement.fill}
+              onChange={(color) => updateFill(selectedElement.id, color)}
+            />
+          </div>
+        )}
+
         <button
           onClick={undo}
           className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"

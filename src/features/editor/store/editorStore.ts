@@ -37,6 +37,7 @@ interface EditorStore {
     fontSize?: number,
   ) => void;
   updateElementRotation: (id: string, rotation: number) => void;
+  updateFill: (id: string, fill: string) => void;
 
   deleteSelectedElement: () => void;
 
@@ -182,6 +183,21 @@ export const useEditorStore = create<EditorStore>((set) => ({
         return {
           ...element,
           rotation,
+        };
+      }),
+    }));
+  },
+
+  updateFill: (id, fill) => {
+    set((state) => ({
+      ...pushHistory(state),
+      elements: state.elements.map((element) => {
+        if (element.id !== id) return element;
+        if (element.type === "image") return element;
+
+        return {
+          ...element,
+          fill,
         };
       }),
     }));
