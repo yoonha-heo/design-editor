@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import type { EditorElement, EditorTool, ShapeKind } from "../types/editor";
+import type { EditorElement, ShapeKind } from "../types/editor";
 
 function pushHistory(state: EditorStore) {
   return {
@@ -14,12 +14,8 @@ interface EditorStore {
   past: EditorElement[][];
   future: EditorElement[][];
 
-  selectedTool: EditorTool;
-  selectedShape: ShapeKind | null;
   selectedElementId: string | null;
 
-  setSelectedTool: (tool: EditorTool) => void;
-  setSelectedShape: (shape: ShapeKind) => void;
   setSelectedElementId: (id: string | null) => void;
 
   undo: () => void;
@@ -52,17 +48,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
   past: [],
   future: [],
 
-  selectedTool: "select",
-  selectedShape: null,
   selectedElementId: null,
-
-  setSelectedTool: (tool) => {
-    set({ selectedTool: tool });
-  },
-
-  setSelectedShape: (shape) => {
-    set({ selectedShape: shape });
-  },
 
   setSelectedElementId: (id) => {
     set({
@@ -117,7 +103,6 @@ export const useEditorStore = create<EditorStore>((set) => ({
       ...pushHistory(state),
       elements: [...state.elements, newShape],
       selectedElementId: newShape.id,
-      selectedTool: "select",
     }));
   },
 
@@ -224,7 +209,6 @@ export const useEditorStore = create<EditorStore>((set) => ({
       ...pushHistory(state),
       elements: [...state.elements, newText],
       selectedElementId: newText.id,
-      selectedTool: "select",
     }));
   },
 
@@ -244,7 +228,6 @@ export const useEditorStore = create<EditorStore>((set) => ({
       ...pushHistory(state),
       elements: [...state.elements, newImage],
       selectedElementId: newImage.id,
-      selectedTool: "select",
     }));
   },
 

@@ -1,5 +1,21 @@
+import type { ReactNode } from "react";
 import { Circle, Square, Triangle, Star } from "lucide-react";
+
 import { useEditorStore } from "../store/editorStore";
+import type { ShapeKind } from "../types/editor";
+
+const DEFAULT_ELEMENT_X = 120;
+const DEFAULT_ELEMENT_Y = 120;
+
+const shapes: Array<{
+  kind: ShapeKind;
+  icon: ReactNode;
+}> = [
+  { kind: "rectangle", icon: <Square size={70} /> },
+  { kind: "circle", icon: <Circle size={70} /> },
+  { kind: "triangle", icon: <Triangle size={70} /> },
+  { kind: "star", icon: <Star size={70} /> },
+];
 
 export function ShapePanel({
   isOpen,
@@ -8,8 +24,7 @@ export function ShapePanel({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const setSelectedTool = useEditorStore((state) => state.setSelectedTool);
-  const setSelectedShape = useEditorStore((state) => state.setSelectedShape);
+  const addShapeAt = useEditorStore((state) => state.addShapeAt);
 
   return (
     <aside
@@ -26,45 +41,17 @@ export function ShapePanel({
       </div>
 
       <div className="grid grid-cols-2 gap-8 mt-8">
-        <button
-          onClick={() => {
-            setSelectedTool("shape");
-            setSelectedShape("rectangle");
-          }}
-          className="flex items-center justify-center w-full h-32 rounded-md p-5 hover:bg-gray-100"
-        >
-          <Square size={70} />
-        </button>
-
-        <button
-          onClick={() => {
-            setSelectedTool("shape");
-            setSelectedShape("circle");
-          }}
-          className="flex items-center justify-center w-full h-32 rounded-md p-5 hover:bg-gray-100"
-        >
-          <Circle size={70} />
-        </button>
-
-        <button
-          onClick={() => {
-            setSelectedTool("shape");
-            setSelectedShape("triangle");
-          }}
-          className="flex items-center justify-center w-full h-32 rounded-md p-5 hover:bg-gray-100"
-        >
-          <Triangle size={70} />
-        </button>
-
-        <button
-          onClick={() => {
-            setSelectedTool("shape");
-            setSelectedShape("star");
-          }}
-          className="flex items-center justify-center w-full h-32 rounded-md p-5 hover:bg-gray-100"
-        >
-          <Star size={70} />
-        </button>
+        {shapes.map((shape) => (
+          <button
+            key={shape.kind}
+            onClick={() =>
+              addShapeAt(shape.kind, DEFAULT_ELEMENT_X, DEFAULT_ELEMENT_Y)
+            }
+            className="flex items-center justify-center w-full h-32 rounded-md p-5 hover:bg-gray-100"
+          >
+            {shape.icon}
+          </button>
+        ))}
       </div>
     </aside>
   );

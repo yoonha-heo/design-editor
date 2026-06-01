@@ -65,9 +65,6 @@ function URLImage({
 
 export function Artboard() {
   const elements = useEditorStore((state) => state.elements);
-  const selectedTool = useEditorStore((state) => state.selectedTool);
-  const selectedShape = useEditorStore((state) => state.selectedShape);
-  const addShapeAt = useEditorStore((state) => state.addShapeAt);
   const selectedElementId = useEditorStore((state) => state.selectedElementId);
   const setSelectedElementId = useEditorStore(
     (state) => state.setSelectedElementId,
@@ -82,7 +79,6 @@ export function Artboard() {
   const updateElementRotation = useEditorStore(
     (state) => state.updateElementRotation,
   );
-  const addTextAt = useEditorStore((state) => state.addTextAt);
 
   const shapeRef = useRef<any>(null);
   const transformerRef = useRef<any>(null);
@@ -120,19 +116,6 @@ export function Artboard() {
 
     if (clickedOnEmpty) {
       setSelectedElementId(null);
-    }
-
-    const stage = event.target.getStage();
-    const pointer = stage?.getPointerPosition();
-
-    if (!pointer) return;
-
-    if (selectedTool === "shape") {
-      addShapeAt(selectedShape, pointer.x, pointer.y);
-    }
-
-    if (selectedTool === "text") {
-      addTextAt(pointer.x, pointer.y);
     }
   };
 

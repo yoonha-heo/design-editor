@@ -1,5 +1,3 @@
-export type EditorTool = "select" | "shape" | "text" | "image";
-
 export type ElementType = "shape" | "text" | "image";
 
 export type ShapeKind = "rectangle" | "circle" | "triangle" | "star";

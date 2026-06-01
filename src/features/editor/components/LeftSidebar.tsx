@@ -1,6 +1,10 @@
-import { Image, MousePointer2, Shapes, Type } from "lucide-react";
+import type { ReactNode } from "react";
+import { Image, Shapes, Type } from "lucide-react";
 
 import { useEditorStore } from "../store/editorStore";
+
+const DEFAULT_ELEMENT_X = 120;
+const DEFAULT_ELEMENT_Y = 120;
 
 function SidebarButton({
   icon,
@@ -8,7 +12,7 @@ function SidebarButton({
   isActive,
   onClick,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   isActive?: boolean;
   onClick: () => void;
@@ -35,19 +39,11 @@ export function LeftSidebar({
   isShapePanelOpen: boolean;
   onToggleShapePanel: () => void;
 }) {
-  const selectedTool = useEditorStore((state) => state.selectedTool);
-  const setSelectedTool = useEditorStore((state) => state.setSelectedTool);
+  const addTextAt = useEditorStore((state) => state.addTextAt);
   const addImageAt = useEditorStore((state) => state.addImageAt);
 
   return (
     <aside className="z-50 flex w-24 shrink-0 flex-col items-center gap-2 border-r bg-white px-2 py-4">
-      <SidebarButton
-        icon={<MousePointer2 size={20} />}
-        label="Select"
-        isActive={selectedTool === "select"}
-        onClick={() => setSelectedTool("select")}
-      />
-
       <SidebarButton
         icon={<Shapes size={20} />}
         label="Shapes"
@@ -58,16 +54,11 @@ export function LeftSidebar({
       <SidebarButton
         icon={<Type size={22} />}
         label="Text"
-        isActive={selectedTool === "text"}
-        onClick={() => setSelectedTool("text")}
+        onClick={() => addTextAt(DEFAULT_ELEMENT_X, DEFAULT_ELEMENT_Y)}
       />
 
       <label
-        className={`flex h-16 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium transition-colors ${
-          selectedTool === "image"
-            ? "bg-emerald-50 text-emerald-600"
-            : "text-gray-700 hover:bg-gray-100"
-        }`}
+        className="flex h-16 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100"
       >
         <Image size={20} />
         <span>Image</span>
@@ -83,7 +74,7 @@ export function LeftSidebar({
 
             const src = URL.createObjectURL(file);
 
-            addImageAt(src, 120, 120);
+            addImageAt(src, DEFAULT_ELEMENT_X, DEFAULT_ELEMENT_Y);
           }}
         />
       </label>
