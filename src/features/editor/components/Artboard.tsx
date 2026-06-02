@@ -197,10 +197,6 @@ export function Artboard() {
                     height={element.height}
                     fill={element.fill}
                     rotation={element.rotation}
-                    stroke={
-                      selectedElementId === element.id ? "#2563eb" : undefined
-                    }
-                    strokeWidth={selectedElementId === element.id ? 2 : 0}
                     draggable
                     onDragEnd={(event) =>
                       updateElementPosition(
@@ -245,10 +241,6 @@ export function Artboard() {
                     radiusY={element.height / 2}
                     fill={element.fill}
                     rotation={element.rotation}
-                    stroke={
-                      selectedElementId === element.id ? "#2563eb" : undefined
-                    }
-                    strokeWidth={selectedElementId === element.id ? 2 : 0}
                     draggable
                     onDragEnd={(event) =>
                       updateElementPosition(
@@ -293,10 +285,6 @@ export function Artboard() {
                     radius={50}
                     fill={element.fill}
                     rotation={element.rotation}
-                    stroke={
-                      selectedElementId === element.id ? "#2563eb" : undefined
-                    }
-                    strokeWidth={selectedElementId === element.id ? 2 : 0}
                     draggable
                     onDragEnd={(event) =>
                       updateElementPosition(
@@ -342,10 +330,6 @@ export function Artboard() {
                     height={element.height}
                     fill={element.fill}
                     rotation={element.rotation}
-                    stroke={
-                      selectedElementId === element.id ? "#2563eb" : undefined
-                    }
-                    strokeWidth={selectedElementId === element.id ? 2 : 0}
                     draggable
                     onDragEnd={(event) =>
                       updateElementPosition(
@@ -481,6 +465,7 @@ export function Artboard() {
             width: editingElement.width,
             height: editingElement.height,
             fontSize: editingElement.fontSize,
+            color: editingElement.fill,
             lineHeight: `${editingElement.fontSize * 1.2}px`,
           }}
           value={draftText}
