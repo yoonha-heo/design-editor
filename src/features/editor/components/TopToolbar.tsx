@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   BringToFront,
   SendToBack,
@@ -11,6 +10,7 @@ import {
 import { HexColorPicker } from "react-colorful";
 
 import { useEditorStore } from "../store/editorStore";
+import { useUIStore } from "../store/UIStore";
 
 function ArrangementMenuItem({
   icon,
@@ -33,8 +33,12 @@ function ArrangementMenuItem({
 }
 
 export function TopToolbar() {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  const {
+    isArrangementMenuOpen,
+    isColorPickerOpen,
+    toggleArrangementMenu,
+    toggleColorPicker,
+  } = useUIStore();
 
   const {
     elements,
@@ -64,7 +68,7 @@ export function TopToolbar() {
     <header className="flex h-14 items-center justify-end border-b bg-white px-4">
       <div className="relative flex gap-1">
         <button
-          onClick={() => setIsColorPickerOpen((prev) => !prev)}
+          onClick={toggleColorPicker}
           className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"
         >
           <div>
@@ -112,7 +116,7 @@ export function TopToolbar() {
         </button>
 
         <button
-          onClick={() => setIsDropdownOpen((prev) => !prev)}
+          onClick={toggleArrangementMenu}
           className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"
         >
           <div>
@@ -124,7 +128,7 @@ export function TopToolbar() {
           </span>
         </button>
 
-        {isDropdownOpen && (
+        {isArrangementMenuOpen && (
           <div className="absolute right-0 top-12 z-50 w-[300px] rounded-lg bg-white p-4 shadow-lg">
             <div className="grid grid-cols-2 gap-x-10 gap-y-8">
               <ArrangementMenuItem

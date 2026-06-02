@@ -12,6 +12,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import { useEditorStore } from "../store/editorStore";
+import { useUIStore } from "../store/UIStore";
 import { useImage } from "../hooks/useImage";
 
 const ARTBOARD_WIDTH = 500;
@@ -75,6 +76,8 @@ export function Artboard() {
     (state) => state.updateElementRotation,
   );
   const updateText = useEditorStore((state) => state.updateText);
+
+  const closeFloatingMenus = useUIStore((state) => state.closeFloatingMenus);
 
   const shapeRef = useRef<any>(null);
   const imageNodeRefs = useRef<Record<string, any>>({});
@@ -154,6 +157,7 @@ export function Artboard() {
     const clickedOnEmpty = event.target.name() === "artboard-background";
 
     if (clickedOnEmpty) {
+      closeFloatingMenus();
       setSelectedElementId(null);
     }
   };
