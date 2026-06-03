@@ -8,15 +8,20 @@ import {
   Text,
   Transformer,
   Image,
+  Group,
 } from "react-konva";
 import { useEffect, useRef, useState } from "react";
 
 import { useEditorStore } from "../store/editorStore";
 import { useUIStore } from "../store/UIStore";
 import { useImage } from "../hooks/useImage";
+import { ZoomIn } from "lucide-react";
 
 const ARTBOARD_WIDTH = 500;
 const ARTBOARD_HEIGHT = 500;
+
+const ARTBOARD_X = 0;
+const ARTBOARD_Y = 0;
 
 // Image node is created asynchronously
 // Notify the parent when the image is ready
@@ -76,6 +81,9 @@ export function Artboard() {
     (state) => state.updateElementRotation,
   );
   const updateText = useEditorStore((state) => state.updateText);
+
+  const zoom = useEditorStore((state) => state.zoom);
+  const setZoom = useEditorStore((state) => state.setZoom);
 
   const closeFloatingMenus = useUIStore((state) => state.closeFloatingMenus);
 
@@ -165,46 +173,275 @@ export function Artboard() {
   return (
     <div className="relative">
       <Stage
-        width={ARTBOARD_WIDTH}
-        height={ARTBOARD_HEIGHT}
+        width={ARTBOARD_WIDTH * zoom}
+        height={ARTBOARD_HEIGHT * zoom}
         onMouseDown={handleStageMouseDown}
       >
         <Layer>
-          <Rect
-            name="artboard-background"
-            x={0}
-            y={0}
-            width={ARTBOARD_WIDTH}
-            height={ARTBOARD_HEIGHT}
-            fill="white"
-            shadowBlur={16}
-            shadowOpacity={0.15}
-          />
+          <Group x={ARTBOARD_X} y={ARTBOARD_Y} scaleX={zoom} scaleY={zoom}>
+            <Rect
+              name="artboard-background"
+              x={0}
+              y={0}
+              width={ARTBOARD_WIDTH}
+              height={ARTBOARD_HEIGHT}
+              fill="white"
+              shadowBlur={16}
+              shadowOpacity={0.15}
+            />
 
-          {elements.map((element) => {
-            if (element.type === "shape") {
-              if (element.shape === "rectangle") {
+            {elements.map((element) => {
+              if (element.type === "shape") {
+                if (element.shape === "rectangle") {
+                  return (
+                    <Rect
+                      ref={
+                        selectedElementId === element.id ? shapeRef : undefined
+                      }
+                      key={element.id}
+                      onClick={() => setSelectedElementId(element.id)}
+                      x={element.x}
+                      y={element.y}
+                      width={element.width}
+                      height={element.height}
+                      fill={element.fill}
+                      rotation={element.rotation}
+                      draggable
+                      onDragEnd={(event) =>
+                        updateElementPosition(
+                          element.id,
+                          event.target.x(),
+                          event.target.y(),
+                        )
+                      }
+                      onTransformEnd={(event) => {
+                        const node = event.target;
+
+                        const scaleX = node.scaleX();
+                        const scaleY = node.scaleY();
+                        const rotation = node.rotation();
+
+                        const nextWidth = node.width() * scaleX;
+                        const nextHeight = node.height() * scaleY;
+
+                        node.scaleX(1);
+                        node.scaleY(1);
+
+                        updateElementSize(element.id, nextWidth, nextHeight);
+                        updateElementRotation(element.id, rotation);
+                      }}
+                    />
+                  );
+                }
+
+                if (element.shape === "circle") {
+                  return (
+                    <Ellipse
+                      ref={
+                        selectedElementId === element.id ? shapeRef : undefined
+                      }
+                      key={element.id}
+                      onClick={() => setSelectedElementId(element.id)}
+                      x={element.x}
+                      y={element.y}
+                      width={element.width}
+                      height={element.height}
+                      radiusX={element.width / 2}
+                      radiusY={element.height / 2}
+                      fill={element.fill}
+                      rotation={element.rotation}
+                      draggable
+                      onDragEnd={(event) =>
+                        updateElementPosition(
+                          element.id,
+                          event.target.x(),
+                          event.target.y(),
+                        )
+                      }
+                      onTransformEnd={(event) => {
+                        const node = event.target;
+
+                        const scaleX = node.scaleX();
+                        const scaleY = node.scaleY();
+                        const rotation = node.rotation();
+
+                        const nextWidth = node.width() * scaleX;
+                        const nextHeight = node.height() * scaleY;
+
+                        node.scaleX(1);
+                        node.scaleY(1);
+
+                        updateElementSize(element.id, nextWidth, nextHeight);
+                        updateElementRotation(element.id, rotation);
+                      }}
+                    />
+                  );
+                }
+
+                if (element.shape === "triangle") {
+                  return (
+                    <RegularPolygon
+                      ref={
+                        selectedElementId === element.id ? shapeRef : undefined
+                      }
+                      key={element.id}
+                      onClick={() => setSelectedElementId(element.id)}
+                      x={element.x}
+                      y={element.y}
+                      width={element.width}
+                      height={element.height}
+                      sides={3}
+                      radius={50}
+                      fill={element.fill}
+                      rotation={element.rotation}
+                      draggable
+                      onDragEnd={(event) =>
+                        updateElementPosition(
+                          element.id,
+                          event.target.x(),
+                          event.target.y(),
+                        )
+                      }
+                      onTransformEnd={(event) => {
+                        const node = event.target;
+
+                        const scaleX = node.scaleX();
+                        const scaleY = node.scaleY();
+                        const rotation = node.rotation();
+
+                        const nextWidth = node.width() * scaleX;
+                        const nextHeight = node.height() * scaleY;
+
+                        node.scaleX(1);
+                        node.scaleY(1);
+
+                        updateElementSize(element.id, nextWidth, nextHeight);
+                        updateElementRotation(element.id, rotation);
+                      }}
+                    />
+                  );
+                }
+
+                if (element.shape === "star") {
+                  return (
+                    <Star
+                      ref={
+                        selectedElementId === element.id ? shapeRef : undefined
+                      }
+                      key={element.id}
+                      onClick={() => setSelectedElementId(element.id)}
+                      x={element.x}
+                      y={element.y}
+                      numPoints={5}
+                      outerRadius={
+                        Math.min(element.width, element.height) * 0.5
+                      }
+                      innerRadius={
+                        Math.min(element.width, element.height) * 0.25
+                      }
+                      width={element.width}
+                      height={element.height}
+                      fill={element.fill}
+                      rotation={element.rotation}
+                      draggable
+                      onDragEnd={(event) =>
+                        updateElementPosition(
+                          element.id,
+                          event.target.x(),
+                          event.target.y(),
+                        )
+                      }
+                      onTransformEnd={(event) => {
+                        const node = event.target;
+
+                        const scaleX = node.scaleX();
+                        const scaleY = node.scaleY();
+                        const rotation = node.rotation();
+
+                        const nextWidth = node.width() * scaleX;
+                        const nextHeight = node.height() * scaleY;
+
+                        node.scaleX(1);
+                        node.scaleY(1);
+
+                        updateElementSize(element.id, nextWidth, nextHeight);
+                        updateElementRotation(element.id, rotation);
+                      }}
+                    />
+                  );
+                }
+              }
+
+              if (element.type === "text") {
                 return (
-                  <Rect
+                  <Text
+                    key={element.id}
                     ref={
                       selectedElementId === element.id ? shapeRef : undefined
                     }
-                    key={element.id}
-                    onClick={() => setSelectedElementId(element.id)}
+                    text={element.text}
+                    visible={editingId !== element.id}
                     x={element.x}
                     y={element.y}
                     width={element.width}
                     height={element.height}
+                    fontSize={element.fontSize}
                     fill={element.fill}
                     rotation={element.rotation}
-                    draggable
-                    onDragEnd={(event) =>
+                    draggable={selectedElementId === element.id}
+                    onClick={() => setSelectedElementId(element.id)}
+                    onDblClick={() => {
+                      setDraftText(element.text);
+                      setEditingId(element.id);
+                      setSelectedElementId(null);
+                    }}
+                    onDragEnd={(event) => {
                       updateElementPosition(
                         element.id,
                         event.target.x(),
                         event.target.y(),
-                      )
-                    }
+                      );
+                    }}
+                    onTransformEnd={(event) => {
+                      const node = event.target;
+
+                      const scaleX = node.scaleX();
+                      const scaleY = node.scaleY();
+                      const rotation = node.rotation();
+
+                      const nextWidth = node.width() * scaleX;
+                      const nextHeight = node.height() * scaleY;
+                      const nextFontSize = element.fontSize * scaleX;
+
+                      node.scaleX(1);
+                      node.scaleY(1);
+
+                      updateElementSize(
+                        element.id,
+                        nextWidth,
+                        nextHeight,
+                        nextFontSize,
+                      );
+                      updateElementRotation(element.id, rotation);
+                    }}
+                  />
+                );
+              }
+
+              if (element.type === "image") {
+                return (
+                  <URLImage
+                    key={element.id}
+                    element={element}
+                    isSelected={selectedElementId === element.id}
+                    onSelect={() => setSelectedElementId(element.id)}
+                    onDragEnd={(event) => {
+                      updateElementPosition(
+                        element.id,
+                        event.target.x(),
+                        event.target.y(),
+                      );
+                    }}
                     onTransformEnd={(event) => {
                       const node = event.target;
 
@@ -221,233 +458,12 @@ export function Artboard() {
                       updateElementSize(element.id, nextWidth, nextHeight);
                       updateElementRotation(element.id, rotation);
                     }}
+                    onImageReady={handleImageReady}
                   />
                 );
               }
-
-              if (element.shape === "circle") {
-                return (
-                  <Ellipse
-                    ref={
-                      selectedElementId === element.id ? shapeRef : undefined
-                    }
-                    key={element.id}
-                    onClick={() => setSelectedElementId(element.id)}
-                    x={element.x}
-                    y={element.y}
-                    width={element.width}
-                    height={element.height}
-                    radiusX={element.width / 2}
-                    radiusY={element.height / 2}
-                    fill={element.fill}
-                    rotation={element.rotation}
-                    draggable
-                    onDragEnd={(event) =>
-                      updateElementPosition(
-                        element.id,
-                        event.target.x(),
-                        event.target.y(),
-                      )
-                    }
-                    onTransformEnd={(event) => {
-                      const node = event.target;
-
-                      const scaleX = node.scaleX();
-                      const scaleY = node.scaleY();
-                      const rotation = node.rotation();
-
-                      const nextWidth = node.width() * scaleX;
-                      const nextHeight = node.height() * scaleY;
-
-                      node.scaleX(1);
-                      node.scaleY(1);
-
-                      updateElementSize(element.id, nextWidth, nextHeight);
-                      updateElementRotation(element.id, rotation);
-                    }}
-                  />
-                );
-              }
-
-              if (element.shape === "triangle") {
-                return (
-                  <RegularPolygon
-                    ref={
-                      selectedElementId === element.id ? shapeRef : undefined
-                    }
-                    key={element.id}
-                    onClick={() => setSelectedElementId(element.id)}
-                    x={element.x}
-                    y={element.y}
-                    width={element.width}
-                    height={element.height}
-                    sides={3}
-                    radius={50}
-                    fill={element.fill}
-                    rotation={element.rotation}
-                    draggable
-                    onDragEnd={(event) =>
-                      updateElementPosition(
-                        element.id,
-                        event.target.x(),
-                        event.target.y(),
-                      )
-                    }
-                    onTransformEnd={(event) => {
-                      const node = event.target;
-
-                      const scaleX = node.scaleX();
-                      const scaleY = node.scaleY();
-                      const rotation = node.rotation();
-
-                      const nextWidth = node.width() * scaleX;
-                      const nextHeight = node.height() * scaleY;
-
-                      node.scaleX(1);
-                      node.scaleY(1);
-
-                      updateElementSize(element.id, nextWidth, nextHeight);
-                      updateElementRotation(element.id, rotation);
-                    }}
-                  />
-                );
-              }
-
-              if (element.shape === "star") {
-                return (
-                  <Star
-                    ref={
-                      selectedElementId === element.id ? shapeRef : undefined
-                    }
-                    key={element.id}
-                    onClick={() => setSelectedElementId(element.id)}
-                    x={element.x}
-                    y={element.y}
-                    numPoints={5}
-                    outerRadius={Math.min(element.width, element.height) * 0.5}
-                    innerRadius={Math.min(element.width, element.height) * 0.25}
-                    width={element.width}
-                    height={element.height}
-                    fill={element.fill}
-                    rotation={element.rotation}
-                    draggable
-                    onDragEnd={(event) =>
-                      updateElementPosition(
-                        element.id,
-                        event.target.x(),
-                        event.target.y(),
-                      )
-                    }
-                    onTransformEnd={(event) => {
-                      const node = event.target;
-
-                      const scaleX = node.scaleX();
-                      const scaleY = node.scaleY();
-                      const rotation = node.rotation();
-
-                      const nextWidth = node.width() * scaleX;
-                      const nextHeight = node.height() * scaleY;
-
-                      node.scaleX(1);
-                      node.scaleY(1);
-
-                      updateElementSize(element.id, nextWidth, nextHeight);
-                      updateElementRotation(element.id, rotation);
-                    }}
-                  />
-                );
-              }
-            }
-
-            if (element.type === "text") {
-              return (
-                <Text
-                  key={element.id}
-                  ref={selectedElementId === element.id ? shapeRef : undefined}
-                  text={element.text}
-                  visible={editingId !== element.id}
-                  x={element.x}
-                  y={element.y}
-                  width={element.width}
-                  height={element.height}
-                  fontSize={element.fontSize}
-                  fill={element.fill}
-                  rotation={element.rotation}
-                  draggable={selectedElementId === element.id}
-                  onClick={() => setSelectedElementId(element.id)}
-                  onDblClick={() => {
-                    setDraftText(element.text);
-                    setEditingId(element.id);
-                    setSelectedElementId(null);
-                  }}
-                  onDragEnd={(event) => {
-                    updateElementPosition(
-                      element.id,
-                      event.target.x(),
-                      event.target.y(),
-                    );
-                  }}
-                  onTransformEnd={(event) => {
-                    const node = event.target;
-
-                    const scaleX = node.scaleX();
-                    const scaleY = node.scaleY();
-                    const rotation = node.rotation();
-
-                    const nextWidth = node.width() * scaleX;
-                    const nextHeight = node.height() * scaleY;
-                    const nextFontSize = element.fontSize * scaleX;
-
-                    node.scaleX(1);
-                    node.scaleY(1);
-
-                    updateElementSize(
-                      element.id,
-                      nextWidth,
-                      nextHeight,
-                      nextFontSize,
-                    );
-                    updateElementRotation(element.id, rotation);
-                  }}
-                />
-              );
-            }
-
-            if (element.type === "image") {
-              return (
-                <URLImage
-                  key={element.id}
-                  element={element}
-                  isSelected={selectedElementId === element.id}
-                  onSelect={() => setSelectedElementId(element.id)}
-                  onDragEnd={(event) => {
-                    updateElementPosition(
-                      element.id,
-                      event.target.x(),
-                      event.target.y(),
-                    );
-                  }}
-                  onTransformEnd={(event) => {
-                    const node = event.target;
-
-                    const scaleX = node.scaleX();
-                    const scaleY = node.scaleY();
-                    const rotation = node.rotation();
-
-                    const nextWidth = node.width() * scaleX;
-                    const nextHeight = node.height() * scaleY;
-
-                    node.scaleX(1);
-                    node.scaleY(1);
-
-                    updateElementSize(element.id, nextWidth, nextHeight);
-                    updateElementRotation(element.id, rotation);
-                  }}
-                  onImageReady={handleImageReady}
-                />
-              );
-            }
-          })}
+            })}
+          </Group>
 
           {selectedElement && (
             <Transformer ref={transformerRef} rotateEnabled keepRatio={true} />

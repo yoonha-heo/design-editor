@@ -6,6 +6,8 @@ import {
   Undo2,
   Redo2,
   Palette,
+  Minus,
+  Plus,
 } from "lucide-react";
 import { HexColorPicker } from "react-colorful";
 
@@ -50,6 +52,8 @@ export function TopToolbar() {
     undo,
     redo,
     updateFill,
+    zoom,
+    setZoom,
   } = useEditorStore();
 
   const selectedElement = elements.find(
@@ -64,9 +68,49 @@ export function TopToolbar() {
     action(selectedElementId);
   };
 
+  const zoomIn = () => {
+    setZoom(Math.min(zoom + 0.1, 3));
+  };
+
+  const zoomOut = () => {
+    setZoom(Math.max(zoom - 0.1, 0.3));
+  };
+
   return (
     <header className="flex h-14 items-center justify-end border-b bg-white px-4">
       <div className="relative flex gap-1">
+        <div className="flex justify-between mr-4">
+          <button
+            onClick={zoomOut}
+            className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"
+          >
+            <div>
+              <Minus size={20} />
+            </div>
+            <span className="absolute top-10 right-0 z-50 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
+              <span className="absolute -top-1 right-3 w-2 h-2 rotate-45 bg-black" />
+              zoomout
+            </span>
+          </button>
+
+          <span className="flex w-10 text-center items-center justify-center text-sm font-medium text-neutral-700">
+            {Math.round(zoom * 100)}%
+          </span>
+
+          <button
+            onClick={zoomIn}
+            className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"
+          >
+            <div>
+              <Plus size={20} />
+            </div>
+            <span className="absolute top-10 right-0 z-50 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
+              <span className="absolute -top-1 right-3 w-2 h-2 rotate-45 bg-black" />
+              zoomin
+            </span>
+          </button>
+        </div>
+
         <button
           onClick={toggleColorPicker}
           className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"
@@ -74,7 +118,7 @@ export function TopToolbar() {
           <div>
             <Palette size={20} />
           </div>
-          <span className="absolute top-10 right-0 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
+          <span className="absolute top-10 right-0 z-50 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
             <span className="absolute -top-1 right-3 w-2 h-2 rotate-45 bg-black" />
             color
           </span>
@@ -96,7 +140,7 @@ export function TopToolbar() {
           <div>
             <Undo2 size={20} />
           </div>
-          <span className="absolute top-10 right-0 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
+          <span className="absolute top-10 right-0 z-50 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
             <span className="absolute -top-1 right-3 w-2 h-2 rotate-45 bg-black" />
             undo
           </span>
@@ -109,7 +153,7 @@ export function TopToolbar() {
           <div>
             <Redo2 size={20} />
           </div>
-          <span className="absolute top-10 right-0 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
+          <span className="absolute top-10 right-0 z-50 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
             <span className="absolute -top-1 right-3 w-2 h-2 rotate-45 bg-black" />
             redo
           </span>
@@ -122,7 +166,7 @@ export function TopToolbar() {
           <div>
             <BringToFront size={20} />
           </div>
-          <span className="absolute top-10 right-0 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
+          <span className="absolute top-10 right-0 z-50 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
             <span className="absolute -top-1 right-3 w-2 h-2 rotate-45 bg-black" />
             Arrangement
           </span>

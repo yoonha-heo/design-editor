@@ -42,6 +42,9 @@ interface EditorStore {
   sendBackward: (id: string) => void;
   bringToFront: (id: string) => void;
   sendToBack: (id: string) => void;
+
+  zoom: number;
+  setZoom: (zoom: number) => void;
 }
 
 export const useEditorStore = create<EditorStore>((set) => ({
@@ -324,6 +327,14 @@ export const useEditorStore = create<EditorStore>((set) => ({
         ...pushHistory(state),
         elements: next,
       };
+    });
+  },
+
+  zoom: 1,
+
+  setZoom: (zoom: number) => {
+    set({
+      zoom,
     });
   },
 }));

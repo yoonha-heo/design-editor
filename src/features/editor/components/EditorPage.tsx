@@ -22,7 +22,10 @@ export function EditorPage() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <TopToolbar />
-        <CanvasArea />
+
+        <div className="flex flex-1 overflow-auto bg-neutral-100">
+          <CanvasArea />
+        </div>
       </div>
     </div>
   );
