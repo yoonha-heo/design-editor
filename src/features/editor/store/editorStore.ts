@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 import type { EditorElement, ShapeKind } from "../types/editor";
 
@@ -47,294 +48,310 @@ interface EditorStore {
   setZoom: (zoom: number) => void;
 }
 
-export const useEditorStore = create<EditorStore>((set) => ({
-  elements: [],
-  past: [],
-  future: [],
+export const useEditorStore = create<EditorStore>()(
+  persist(
+    (set) => ({
+      elements: [],
+      past: [],
+      future: [],
 
-  selectedElementId: null,
+      selectedElementId: null,
 
-  setSelectedElementId: (id) => {
-    set({
-      selectedElementId: id,
-    });
-  },
+      setSelectedElementId: (id) => {
+        set({
+          selectedElementId: id,
+        });
+      },
 
-  undo: () => {
-    set((state) => {
-      const previous = state.past[state.past.length - 1];
+      undo: () => {
+        set((state) => {
+          const previous = state.past[state.past.length - 1];
 
-      if (!previous) return {};
+          if (!previous) return {};
 
-      return {
-        elements: previous,
-        past: state.past.slice(0, -1),
-        future: [...state.future, state.elements],
-        selectedElementId: null,
-      };
-    });
-  },
+          return {
+            elements: previous,
+            past: state.past.slice(0, -1),
+            future: [...state.future, state.elements],
+            selectedElementId: null,
+          };
+        });
+      },
 
-  redo: () => {
-    set((state) => {
-      const next = state.future[state.future.length - 1];
+      redo: () => {
+        set((state) => {
+          const next = state.future[state.future.length - 1];
 
-      if (!next) return {};
+          if (!next) return {};
 
-      return {
-        elements: next,
-        past: [...state.past, state.elements],
-        future: state.future.slice(0, -1),
-        selectedElementId: null,
-      };
-    });
-  },
+          return {
+            elements: next,
+            past: [...state.past, state.elements],
+            future: state.future.slice(0, -1),
+            selectedElementId: null,
+          };
+        });
+      },
 
-  addShapeAt: (shape, x, y) => {
-    const newShape: EditorElement = {
-      id: crypto.randomUUID(),
-      type: "shape",
-      shape,
-      x,
-      y,
-      width: 120,
-      height: 120,
-      fill: "#3b82f6",
-      rotation: 0,
-    };
-
-    set((state) => ({
-      ...pushHistory(state),
-      elements: [...state.elements, newShape],
-      selectedElementId: newShape.id,
-    }));
-  },
-
-  updateElementPosition: (id, x, y) => {
-    set((state) => ({
-      ...pushHistory(state),
-      elements: state.elements.map((element) => {
-        if (element.id !== id) {
-          return element;
-        }
-
-        return {
-          ...element,
+      addShapeAt: (shape, x, y) => {
+        const newShape: EditorElement = {
+          id: crypto.randomUUID(),
+          type: "shape",
+          shape,
           x,
           y,
+          width: 120,
+          height: 120,
+          fill: "#3b82f6",
+          rotation: 0,
         };
-      }),
-    }));
-  },
 
-  deleteSelectedElement: () => {
-    set((state) => {
-      if (!state.selectedElementId) {
-        return state;
-      }
+        set((state) => ({
+          ...pushHistory(state),
+          elements: [...state.elements, newShape],
+          selectedElementId: newShape.id,
+        }));
+      },
 
-      return {
-        ...pushHistory(state),
-        elements: state.elements.filter(
-          (element) => element.id !== state.selectedElementId,
-        ),
-        selectedElementId: null,
-      };
-    });
-  },
+      updateElementPosition: (id, x, y) => {
+        set((state) => ({
+          ...pushHistory(state),
+          elements: state.elements.map((element) => {
+            if (element.id !== id) {
+              return element;
+            }
 
-  updateElementSize: (id, width, height, fontSize?) => {
-    set((state) => ({
-      ...pushHistory(state),
-      elements: state.elements.map((element) => {
-        if (element.id !== id) {
-          return element;
-        }
+            return {
+              ...element,
+              x,
+              y,
+            };
+          }),
+        }));
+      },
 
-        return {
-          ...element,
-          width,
-          height,
-          ...(fontSize && { fontSize }),
-        };
-      }),
-    }));
-  },
+      deleteSelectedElement: () => {
+        set((state) => {
+          if (!state.selectedElementId) {
+            return state;
+          }
 
-  updateElementRotation: (id, rotation) => {
-    set((state) => ({
-      ...pushHistory(state),
-      elements: state.elements.map((element) => {
-        if (element.id !== id) {
-          return element;
-        }
+          return {
+            ...pushHistory(state),
+            elements: state.elements.filter(
+              (element) => element.id !== state.selectedElementId,
+            ),
+            selectedElementId: null,
+          };
+        });
+      },
 
-        return {
-          ...element,
-          rotation,
-        };
-      }),
-    }));
-  },
+      updateElementSize: (id, width, height, fontSize?) => {
+        set((state) => ({
+          ...pushHistory(state),
+          elements: state.elements.map((element) => {
+            if (element.id !== id) {
+              return element;
+            }
 
-  updateFill: (id, fill) => {
-    set((state) => ({
-      ...pushHistory(state),
-      elements: state.elements.map((element) => {
-        if (element.id !== id) return element;
-        if (element.type === "image") return element;
+            return {
+              ...element,
+              width,
+              height,
+              ...(fontSize && { fontSize }),
+            };
+          }),
+        }));
+      },
 
-        return {
-          ...element,
-          fill,
-        };
-      }),
-    }));
-  },
+      updateElementRotation: (id, rotation) => {
+        set((state) => ({
+          ...pushHistory(state),
+          elements: state.elements.map((element) => {
+            if (element.id !== id) {
+              return element;
+            }
 
-  updateText: (id, text) => {
-    set((state) => ({
-      ...pushHistory(state),
-      elements: state.elements.map((element) => {
-        if (element.id !== id) return element;
-        if (element.type !== "text") return element;
+            return {
+              ...element,
+              rotation,
+            };
+          }),
+        }));
+      },
 
-        return {
-          ...element,
+      updateFill: (id, fill) => {
+        set((state) => ({
+          ...pushHistory(state),
+          elements: state.elements.map((element) => {
+            if (element.id !== id) return element;
+            if (element.type === "image") return element;
+
+            return {
+              ...element,
+              fill,
+            };
+          }),
+        }));
+      },
+
+      updateText: (id, text) => {
+        set((state) => ({
+          ...pushHistory(state),
+          elements: state.elements.map((element) => {
+            if (element.id !== id) return element;
+            if (element.type !== "text") return element;
+
+            return {
+              ...element,
+              text,
+            };
+          }),
+        }));
+      },
+
+      addTextAt: (x, y) => {
+        const text = "Text";
+        const fontSize = 32;
+
+        const newText: EditorElement = {
+          id: crypto.randomUUID(),
+          type: "text",
+          width: text.length * fontSize * 0.6,
+          height: fontSize * 1.4,
+          x,
+          y,
           text,
+          fontSize,
+          fill: "#111827",
+          rotation: 0,
         };
+
+        set((state) => ({
+          ...pushHistory(state),
+          elements: [...state.elements, newText],
+          selectedElementId: newText.id,
+        }));
+      },
+
+      addImageAt: (src, x, y) => {
+        const newImage: EditorElement = {
+          id: crypto.randomUUID(),
+          type: "image",
+          src,
+          x,
+          y,
+          width: 240,
+          height: 180,
+          rotation: 0,
+        };
+
+        set((state) => ({
+          ...pushHistory(state),
+          elements: [...state.elements, newImage],
+          selectedElementId: newImage.id,
+        }));
+      },
+
+      bringForward: (id: string) => {
+        set((state) => {
+          const index = state.elements.findIndex(
+            (element) => element.id === id,
+          );
+
+          if (index === -1 || index === state.elements.length - 1) {
+            return {};
+          }
+
+          const next = [...state.elements];
+
+          [next[index], next[index + 1]] = [next[index + 1], next[index]];
+
+          return {
+            ...pushHistory(state),
+            elements: next,
+          };
+        });
+      },
+
+      bringToFront: (id: string) => {
+        set((state) => {
+          const index = state.elements.findIndex(
+            (element) => element.id === id,
+          );
+
+          if (index === -1 || index === state.elements.length - 1) {
+            return {};
+          }
+
+          const next = [...state.elements];
+
+          const cur = next[index];
+          next.splice(index, 1);
+          next.push(cur);
+
+          return {
+            ...pushHistory(state),
+            elements: next,
+          };
+        });
+      },
+
+      sendBackward: (id: string) => {
+        set((state) => {
+          const index = state.elements.findIndex(
+            (element) => element.id === id,
+          );
+
+          if (index <= 0) {
+            return {};
+          }
+
+          const next = [...state.elements];
+
+          [next[index], next[index - 1]] = [next[index - 1], next[index]];
+
+          return {
+            ...pushHistory(state),
+            elements: next,
+          };
+        });
+      },
+
+      sendToBack: (id: string) => {
+        set((state) => {
+          const index = state.elements.findIndex(
+            (element) => element.id === id,
+          );
+
+          if (index <= 0) {
+            return {};
+          }
+
+          const next = [...state.elements];
+
+          const cur = next[index];
+          next.splice(index, 1);
+          next.unshift(cur);
+
+          return {
+            ...pushHistory(state),
+            elements: next,
+          };
+        });
+      },
+
+      zoom: 1,
+
+      setZoom: (zoom) => {
+        set({ zoom });
+      },
+    }),
+    {
+      name: "design-editor",
+      partialize: (state) => ({
+        elements: state.elements,
       }),
-    }));
-  },
-
-  addTextAt: (x, y) => {
-    const text = "Text";
-    const fontSize = 32;
-
-    const newText: EditorElement = {
-      id: crypto.randomUUID(),
-      type: "text",
-      width: text.length * fontSize * 0.6,
-      height: fontSize * 1.4,
-      x,
-      y,
-      text,
-      fontSize,
-      fill: "#111827",
-      rotation: 0,
-    };
-
-    set((state) => ({
-      ...pushHistory(state),
-      elements: [...state.elements, newText],
-      selectedElementId: newText.id,
-    }));
-  },
-
-  addImageAt: (src, x, y) => {
-    const newImage: EditorElement = {
-      id: crypto.randomUUID(),
-      type: "image",
-      src,
-      x,
-      y,
-      width: 240,
-      height: 180,
-      rotation: 0,
-    };
-
-    set((state) => ({
-      ...pushHistory(state),
-      elements: [...state.elements, newImage],
-      selectedElementId: newImage.id,
-    }));
-  },
-
-  bringForward: (id: string) => {
-    set((state) => {
-      const index = state.elements.findIndex((element) => element.id === id);
-
-      if (index === -1 || index === state.elements.length - 1) {
-        return {};
-      }
-
-      const next = [...state.elements];
-
-      [next[index], next[index + 1]] = [next[index + 1], next[index]];
-
-      return {
-        ...pushHistory(state),
-        elements: next,
-      };
-    });
-  },
-
-  bringToFront: (id: string) => {
-    set((state) => {
-      const index = state.elements.findIndex((element) => element.id === id);
-
-      if (index === -1 || index === state.elements.length - 1) {
-        return {};
-      }
-
-      const next = [...state.elements];
-
-      const cur = next[index];
-      next.splice(index, 1);
-      next.push(cur);
-
-      return {
-        ...pushHistory(state),
-        elements: next,
-      };
-    });
-  },
-
-  sendBackward: (id: string) => {
-    set((state) => {
-      const index = state.elements.findIndex((element) => element.id === id);
-
-      if (index <= 0) {
-        return {};
-      }
-
-      const next = [...state.elements];
-
-      [next[index], next[index - 1]] = [next[index - 1], next[index]];
-
-      return {
-        ...pushHistory(state),
-        elements: next,
-      };
-    });
-  },
-
-  sendToBack: (id: string) => {
-    set((state) => {
-      const index = state.elements.findIndex((element) => element.id === id);
-
-      if (index <= 0) {
-        return {};
-      }
-
-      const next = [...state.elements];
-
-      const cur = next[index];
-      next.splice(index, 1);
-      next.unshift(cur);
-
-      return {
-        ...pushHistory(state),
-        elements: next,
-      };
-    });
-  },
-
-  zoom: 1,
-
-  setZoom: (zoom: number) => {
-    set({
-      zoom,
-    });
-  },
-}));
+    },
+  ),
+);
