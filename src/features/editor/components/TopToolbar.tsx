@@ -8,6 +8,7 @@ import {
   Palette,
   Minus,
   Plus,
+  Download,
 } from "lucide-react";
 import { HexColorPicker } from "react-colorful";
 
@@ -34,7 +35,7 @@ function ArrangementMenuItem({
   );
 }
 
-export function TopToolbar() {
+export function TopToolbar({ handleDownload }: { handleDownload: () => void }) {
   const {
     isArrangementMenuOpen,
     isColorPickerOpen,
@@ -79,7 +80,20 @@ export function TopToolbar() {
   return (
     <header className="flex h-14 items-center justify-end border-b bg-white px-4">
       <div className="relative flex gap-1">
-        <div className="flex justify-between mr-4">
+        <button
+          onClick={handleDownload}
+          className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"
+        >
+          <div>
+            <Download size={20} />
+          </div>
+          <span className="absolute top-10 right-0 z-50 hidden rounded-md bg-black px-2 py-1 text-xs text-white group-hover:block">
+            <span className="absolute -top-1 right-3 w-2 h-2 rotate-45 bg-black" />
+            Download
+          </span>
+        </button>
+
+        <div className="flex justify-between mx-4">
           <button
             onClick={zoomOut}
             className="group relative flex w-9 h-9 items-center justify-center rounded-md hover:bg-gray-100"

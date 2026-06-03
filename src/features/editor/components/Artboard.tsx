@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import { useEditorStore } from "../store/editorStore";
 import { useUIStore } from "../store/UIStore";
 import { useImage } from "../hooks/useImage";
-import { ZoomIn } from "lucide-react";
+import type Konva from "konva";
 
 const ARTBOARD_WIDTH = 500;
 const ARTBOARD_HEIGHT = 500;
@@ -64,7 +64,11 @@ function URLImage({
   );
 }
 
-export function Artboard() {
+export function Artboard({
+  stageRef,
+}: {
+  stageRef: React.RefObject<Konva.Stage | null>;
+}) {
   const elements = useEditorStore((state) => state.elements);
   const selectedElementId = useEditorStore((state) => state.selectedElementId);
   const setSelectedElementId = useEditorStore(
@@ -83,7 +87,6 @@ export function Artboard() {
   const updateText = useEditorStore((state) => state.updateText);
 
   const zoom = useEditorStore((state) => state.zoom);
-  const setZoom = useEditorStore((state) => state.setZoom);
 
   const closeFloatingMenus = useUIStore((state) => state.closeFloatingMenus);
 
@@ -173,6 +176,7 @@ export function Artboard() {
   return (
     <div className="relative">
       <Stage
+        ref={stageRef}
         width={ARTBOARD_WIDTH * zoom}
         height={ARTBOARD_HEIGHT * zoom}
         onMouseDown={handleStageMouseDown}
