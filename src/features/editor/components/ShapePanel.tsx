@@ -1,21 +1,10 @@
-import type { ReactNode } from "react";
-import { Circle, Square, Triangle, Star } from "lucide-react";
-
 import { useEditorStore } from "../store/editorStore";
+import {
+  DEFAULT_ELEMENT_X,
+  DEFAULT_ELEMENT_Y,
+} from "../constants/editorDefaults";
+import { SHAPES } from "../constants/shapes";
 import type { ShapeKind } from "../types/editor";
-
-const DEFAULT_ELEMENT_X = 120;
-const DEFAULT_ELEMENT_Y = 120;
-
-const shapes: Array<{
-  kind: ShapeKind;
-  icon: ReactNode;
-}> = [
-  { kind: "rectangle", icon: <Square size={70} /> },
-  { kind: "circle", icon: <Circle size={70} /> },
-  { kind: "triangle", icon: <Triangle size={70} /> },
-  { kind: "star", icon: <Star size={70} /> },
-];
 
 export function ShapePanel({
   isOpen,
@@ -25,6 +14,10 @@ export function ShapePanel({
   onClose: () => void;
 }) {
   const addShapeAt = useEditorStore((state) => state.addShapeAt);
+
+  const handleAddShape = (kind: ShapeKind) => {
+    addShapeAt(kind, DEFAULT_ELEMENT_X, DEFAULT_ELEMENT_Y);
+  };
 
   return (
     <aside
@@ -41,12 +34,10 @@ export function ShapePanel({
       </div>
 
       <div className="grid grid-cols-2 gap-8 mt-8">
-        {shapes.map((shape) => (
+        {SHAPES.map((shape) => (
           <button
             key={shape.kind}
-            onClick={() =>
-              addShapeAt(shape.kind, DEFAULT_ELEMENT_X, DEFAULT_ELEMENT_Y)
-            }
+            onClick={() => handleAddShape(shape.kind)}
             className="flex items-center justify-center w-full h-32 rounded-md p-5 hover:bg-gray-100"
           >
             {shape.icon}

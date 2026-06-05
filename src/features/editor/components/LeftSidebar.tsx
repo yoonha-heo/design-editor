@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
-import { Image, Shapes, Type } from "lucide-react";
+import { Shapes, Type } from "lucide-react";
 
 import { useEditorStore } from "../store/editorStore";
-
-const DEFAULT_ELEMENT_X = 120;
-const DEFAULT_ELEMENT_Y = 120;
+import {
+  DEFAULT_ELEMENT_X,
+  DEFAULT_ELEMENT_Y,
+} from "../constants/editorDefaults";
+import { ImageUploadButton } from "./sidebar/ImageUploadButton";
 
 function SidebarButton({
   icon,
@@ -40,7 +42,10 @@ export function LeftSidebar({
   onToggleShapePanel: () => void;
 }) {
   const addTextAt = useEditorStore((state) => state.addTextAt);
-  const addImageAt = useEditorStore((state) => state.addImageAt);
+
+  const handleAddText = () => {
+    addTextAt(DEFAULT_ELEMENT_X, DEFAULT_ELEMENT_Y);
+  };
 
   return (
     <aside className="z-50 flex w-24 shrink-0 flex-col items-center gap-2 border-r bg-white px-2 py-4">
@@ -54,30 +59,10 @@ export function LeftSidebar({
       <SidebarButton
         icon={<Type size={22} />}
         label="Text"
-        onClick={() => addTextAt(DEFAULT_ELEMENT_X, DEFAULT_ELEMENT_Y)}
+        onClick={handleAddText}
       />
 
-      <label
-        className="flex h-16 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100"
-      >
-        <Image size={20} />
-        <span>Image</span>
-
-        <input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-
-            if (!file) return;
-
-            const src = URL.createObjectURL(file);
-
-            addImageAt(src, DEFAULT_ELEMENT_X, DEFAULT_ELEMENT_Y);
-          }}
-        />
-      </label>
+      <ImageUploadButton />
     </aside>
   );
 }

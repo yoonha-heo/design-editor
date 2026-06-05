@@ -1,15 +1,23 @@
 import { useRef, useState } from "react";
+import type Konva from "konva";
 
 import { CanvasArea } from "./CanvasArea";
 import { LeftSidebar } from "./LeftSidebar";
 import { TopToolbar } from "./TopToolbar";
 import { ShapePanel } from "./ShapePanel";
-import type Konva from "konva";
 
 export function EditorPage() {
   const [isShapePanelOpen, setIsShapePanelOpen] = useState(false);
 
   const stageRef = useRef<Konva.Stage>(null);
+
+  const closeShapePanel = () => {
+    setIsShapePanelOpen(false);
+  };
+
+  const toggleShapePanel = () => {
+    setIsShapePanelOpen((prev) => !prev);
+  };
 
   const handleDownload = () => {
     const uri = stageRef.current?.toDataURL({
@@ -20,7 +28,7 @@ export function EditorPage() {
 
     const link = document.createElement("a");
 
-    link.download = "design-tool.png";
+    link.download = "canvas-export.png";
     link.href = uri;
 
     link.click();
@@ -30,13 +38,10 @@ export function EditorPage() {
     <div className="flex h-screen w-screen bg-neutral-100">
       <LeftSidebar
         isShapePanelOpen={isShapePanelOpen}
-        onToggleShapePanel={() => setIsShapePanelOpen((prev) => !prev)}
+        onToggleShapePanel={toggleShapePanel}
       />
 
-      <ShapePanel
-        isOpen={isShapePanelOpen}
-        onClose={() => setIsShapePanelOpen(false)}
-      />
+      <ShapePanel isOpen={isShapePanelOpen} onClose={closeShapePanel} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <TopToolbar handleDownload={handleDownload} />

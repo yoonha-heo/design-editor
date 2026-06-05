@@ -8,12 +8,12 @@ import type { EditorElement } from "../types/editor";
 import { CanvasElement } from "./canvas/CanvasElement";
 import { useTextEditing } from "../hooks/useTextEditing";
 import { TextEditingOverlay } from "./canvas/TextEditingOverlay";
-
-const ARTBOARD_WIDTH = 500;
-const ARTBOARD_HEIGHT = 500;
-
-const ARTBOARD_X = 0;
-const ARTBOARD_Y = 0;
+import {
+  ARTBOARD_WIDTH,
+  ARTBOARD_HEIGHT,
+  ARTBOARD_X,
+  ARTBOARD_Y,
+} from "../constants/artboard";
 
 export function Artboard({
   stageRef,
@@ -41,9 +41,9 @@ export function Artboard({
 
   const closeFloatingMenus = useUIStore((state) => state.closeFloatingMenus);
 
-  const shapeRef = useRef<any>(null);
-  const imageNodeRefs = useRef<Record<string, any>>({});
-  const transformerRef = useRef<any>(null);
+  const shapeRef = useRef<Konva.Shape>(null);
+  const transformerRef = useRef<Konva.Transformer>(null);
+  const imageNodeRefs = useRef<Record<string, Konva.Image>>({});
 
   const {
     editingId,
