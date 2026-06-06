@@ -1,73 +1,56 @@
-# React + TypeScript + Vite
+# Design Tool
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Browser-based design editor built with React, TypeScript, Zustand, and Konva.
 
-Currently, two official plugins are available:
+Users can create and edit shapes, text, and images, manage layer order, zoom the canvas, and export designs as PNG.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+React / TypeScript / Zustand / React Konva / Tailwind CSS
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+<img src="./assets/demo.gif" width="400" />
 
-## Expanding the ESLint configuration
+## How I Designed the Editor
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+I wanted editor features to build on top of the same state model rather than introducing separate state for each interaction.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Selection, transformation, layer ordering, text editing, undo/redo, and persistence all operate on the same element state managed by Zustand.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+This follows a unidirectional data flow where editor actions update state, and the canvas reflects the current state.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+When refactoring, I focused on separating components by responsibility so it is easy to understand what each component does at a glance.
+
+## Challenges I Faced
+
+### Text Editing
+
+Konva is great for rendering text, but not for editing it.
+
+To support text editing, I render text on the canvas and switch to an HTML textarea overlay while editing.
+
+```txt
+Canvas Text
+→ Double Click
+→ HTML Textarea Overlay
+→ State Update
+→ Canvas Re-render
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Image Loading
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Images load asynchronously, so transformers cannot always be attached immediately after rendering.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+To solve this, image nodes are registered when loading completes and transformers are attached once the image becomes available.
+
+### Undo / Redo
+
+Undo and redo are implemented through editor state snapshots.
+
+Because editor behaviors operate on the same element state, history restoration automatically updates rendering, transformations, layer ordering, and content through the same state model.
+
+## Run
+
+```bash
+npm install
+npm run dev
 ```
