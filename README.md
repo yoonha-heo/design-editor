@@ -8,7 +8,7 @@ React / TypeScript / Zustand / React Konva / Tailwind CSS
 
 ---
 
-<img src="./assets/demo.gif" width="400" />
+<img src="./assets/design-editor-demo.gif" width="450" />
 
 ## How I Designed the Editor
 
